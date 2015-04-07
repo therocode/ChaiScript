@@ -180,7 +180,9 @@ namespace chaiscript
             if (m_arity == 0)
             {
               return true;
-            } else if (m_arity > 1 && m_types.size() > 1) {
+            } else if (m_arity > 2 && m_types.size() > 3) {
+              return compare_first_type(vals[0], t_conversions) && compare_type_to_param(m_types[2], vals[1], t_conversions) && compare_type_to_param(m_types[3], vals[2], t_conversions);
+            } else if (m_arity > 1 && m_types.size() > 2) {
               return compare_first_type(vals[0], t_conversions) && compare_type_to_param(m_types[2], vals[1], t_conversions);
             } else {
               return compare_first_type(vals[0], t_conversions);
@@ -200,16 +202,18 @@ namespace chaiscript
 
         static bool compare_type_to_param(const Type_Info &ti, const Boxed_Value &bv, const Type_Conversions &t_conversions)
         {
-          if (ti.is_undef() 
+          const auto & bv_ti = bv.get_type_info();
+          if (
+              (ti.is_undef() 
               || ti.bare_equal(user_type<Boxed_Value>())
-              || (!bv.get_type_info().is_undef()
+              || (!bv_ti.is_undef()
                 && (ti.bare_equal(user_type<Boxed_Number>())
-                  || ti.bare_equal(bv.get_type_info())
-                  || bv.get_type_info().bare_equal(user_type<std::shared_ptr<const Proxy_Function_Base> >())
-                  || t_conversions.converts(ti, bv.get_type_info()) 
+                  || (ti.bare_equal(bv_ti) && (ti.is_const() || !bv_ti.is_const()))
+                  || bv_ti.bare_equal(user_type<std::shared_ptr<const Proxy_Function_Base> >())
+                  || t_conversions.converts(ti, bv_ti) 
                   )
                 )
-             )
+             ))
           {
             return true;
           } else {
