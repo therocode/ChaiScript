@@ -12,7 +12,7 @@
 
 namespace chaiscript 
 {
-  namespace bootstrap
+  namespace bs
   {
     namespace operators
     {

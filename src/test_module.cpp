@@ -184,9 +184,9 @@ CHAISCRIPT_MODULE_EXPORT  chaiscript::ModulePtr create_chaiscript_module_test_mo
   // std::reference_wrapper
   // Array types
   m->add(chaiscript::fun(&TestBaseType::mdarray), "mdarray");
-  m->add(chaiscript::bootstrap::array<int[2][3][5]>("IntArray_2_3_5"));
-  m->add(chaiscript::bootstrap::array<int[3][5]>("IntArray_3_5"));
-  m->add(chaiscript::bootstrap::array<int[5]>("IntArray_5"));
+  m->add(chaiscript::bs::array<int[2][3][5]>("IntArray_2_3_5"));
+  m->add(chaiscript::bs::array<int[3][5]>("IntArray_3_5"));
+  m->add(chaiscript::bs::array<int[5]>("IntArray_5"));
   // end array types
 #endif
 

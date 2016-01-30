@@ -29,9 +29,9 @@
 
 namespace chaiscript 
 {
-  namespace bootstrap
+  namespace bs
   {
-    namespace standard_library
+    namespace stl
     {
 
       /// Bidir_Range, based on the D concept of ranges.

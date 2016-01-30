@@ -84,7 +84,7 @@ class Map_Pair
 /// Implemented as std::map<Boxed_Value>
 ///
 /// \sa Map_Pair
-/// \sa chaiscript::bootstrap::standard_library::map_type
+/// \sa chaiscript::bs::stl::map_type
 class Map
 {
   public:
@@ -163,7 +163,7 @@ void print(Object o);
 ///       \c "bob".find("b") and \c find("bob", "b") are exactly the same. Most examples below follow the
 ///       second formation of the function calls.
 /// \sa \ref keyworddef for extending existing C++ classes in ChaiScript
-/// \sa chaiscript::bootstrap::standard_library::string_type
+/// \sa chaiscript::bs::stl::string_type
 class string
 {
   public:
@@ -286,7 +286,7 @@ class string
 /// \brief A concept in ChaiScript that is implemented by \ref string, Vector and Map. It provides
 ///        easy iteration over the elements in a container.
 ///
-/// Implemented by the template chaiscript::bootstrap::standard_library::Bidir_Range
+/// Implemented by the template chaiscript::bs::stl::Bidir_Range
 ///
 /// \sa Const_Range
 class Range
@@ -317,7 +317,7 @@ class Range
 /// \brief A concept in ChaiScript that is implemented by \ref string, Vector and Map. It provides
 ///        easy iteration over the elements in a container. Contained values are const.
 ///
-/// Implemented by the template chaiscript::bootstrap::standard_library::Const_Bidir_Range
+/// Implemented by the template chaiscript::bs::stl::Const_Bidir_Range
 ///
 /// \sa Range
 class Const_Range
@@ -361,7 +361,7 @@ class Const_Range
 ///
 /// Implemented with std::vector<chaiscript::Boxed_Value>
 /// 
-/// \sa chaiscript::bootstrap::standard_library::vector_type
+/// \sa chaiscript::bs::stl::vector_type
 class Vector
 {
   public:

@@ -37,7 +37,7 @@
 namespace chaiscript 
 {
   /// \brief Classes and functions useful for bootstrapping of ChaiScript and adding of new types
-  namespace bootstrap
+  namespace bs
   {
     namespace det
     {
@@ -563,7 +563,7 @@ namespace chaiscript
         m->add(chaiscript::base_class<std::runtime_error, chaiscript::exception::arithmetic_error>());
 
 
-//        chaiscript::bootstrap::standard_library::vector_type<std::vector<std::shared_ptr<chaiscript::AST_Node> > >("AST_NodeVector", m);
+//        chaiscript::bs::stl::vector_type<std::vector<std::shared_ptr<chaiscript::AST_Node> > >("AST_NodeVector", m);
 
 
         chaiscript::utility::add_class<chaiscript::exception::eval_error>(*m,

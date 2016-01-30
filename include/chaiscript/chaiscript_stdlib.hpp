@@ -38,17 +38,17 @@ namespace chaiscript
 
       static ModulePtr library()
       {
-        using namespace bootstrap;
+        using namespace bs;
 
         ModulePtr lib = Bootstrap::bootstrap();
 
-        lib->add(standard_library::vector_type<std::vector<Boxed_Value> >("Vector"));
-        lib->add(standard_library::string_type<std::string>("string"));
-        lib->add(standard_library::map_type<std::map<std::string, Boxed_Value> >("Map"));
-        lib->add(standard_library::pair_type<std::pair<Boxed_Value, Boxed_Value > >("Pair"));
+        lib->add(stl::vector_type<std::vector<Boxed_Value> >("Vector"));
+        lib->add(stl::string_type<std::string>("string"));
+        lib->add(stl::map_type<std::map<std::string, Boxed_Value> >("Map"));
+        lib->add(stl::pair_type<std::pair<Boxed_Value, Boxed_Value > >("Pair"));
 
 #ifndef CHAISCRIPT_NO_THREADS
-        lib->add(standard_library::future_type<std::future<chaiscript::Boxed_Value>>("future"));
+        lib->add(stl::future_type<std::future<chaiscript::Boxed_Value>>("future"));
         lib->add(chaiscript::fun([](const std::function<chaiscript::Boxed_Value ()> &t_func){ return std::async(std::launch::async, t_func);}), "async");
 #endif
 

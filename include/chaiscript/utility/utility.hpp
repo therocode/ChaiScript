@@ -81,7 +81,7 @@ namespace chaiscript
         t_module.add(chaiscript::constructor<Enum ()>(), t_class_name);
         t_module.add(chaiscript::constructor<Enum (const Enum &)>(), t_class_name);
 
-        using namespace chaiscript::bootstrap::operators;
+        using namespace chaiscript::bs::operators;
         t_module.add([](){
               // add some comparison and assignment operators
               return assign<Enum>(not_equal<Enum>(equal<Enum>()));
