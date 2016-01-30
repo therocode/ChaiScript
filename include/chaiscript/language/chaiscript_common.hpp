@@ -113,7 +113,7 @@ namespace chaiscript
       eval_error(const std::string &t_why, const File_Position &t_where, const std::string &t_fname,
           const std::vector<Boxed_Value> &t_parameters, const std::vector<chaiscript::Const_Proxy_Function> &t_functions,
           bool t_dot_notation,
-          const chaiscript::detail::Dispatch_Engine &t_ss) CHAISCRIPT_NOEXCEPT :
+          const chaiscript::det::Dispatch_Engine &t_ss) CHAISCRIPT_NOEXCEPT :
         std::runtime_error(format(t_why, t_where, t_fname, t_parameters, t_dot_notation, t_ss)),
         reason(t_why), start_position(t_where), filename(t_fname), detail(format_detail(t_functions, t_dot_notation, t_ss)) 
       {}
@@ -121,7 +121,7 @@ namespace chaiscript
       eval_error(const std::string &t_why, 
            const std::vector<Boxed_Value> &t_parameters, const std::vector<chaiscript::Const_Proxy_Function> &t_functions,
            bool t_dot_notation,
-           const chaiscript::detail::Dispatch_Engine &t_ss) CHAISCRIPT_NOEXCEPT :
+           const chaiscript::det::Dispatch_Engine &t_ss) CHAISCRIPT_NOEXCEPT :
         std::runtime_error(format(t_why, t_parameters, t_dot_notation, t_ss)),
         reason(t_why), detail(format_detail(t_functions, t_dot_notation, t_ss))
       {}
@@ -198,7 +198,7 @@ namespace chaiscript
 
       static std::string format_types(const Const_Proxy_Function &t_func,
           bool t_dot_notation,
-          const chaiscript::detail::Dispatch_Engine &t_ss)
+          const chaiscript::det::Dispatch_Engine &t_ss)
       {
         int arity = t_func->get_arity();
         std::vector<Type_Info> types = t_func->get_param_types();
@@ -245,8 +245,8 @@ namespace chaiscript
         }
 
 
-        std::shared_ptr<const dispatch::Dynamic_Proxy_Function> dynfun 
-          = std::dynamic_pointer_cast<const dispatch::Dynamic_Proxy_Function>(t_func);
+        std::shared_ptr<const dk::Dynamic_Proxy_Function> dynfun 
+          = std::dynamic_pointer_cast<const dk::Dynamic_Proxy_Function>(t_func);
 
         if (dynfun)
         {
@@ -254,7 +254,7 @@ namespace chaiscript
 
           if (f)
           {
-            auto dynfunguard = std::dynamic_pointer_cast<const dispatch::Dynamic_Proxy_Function>(f);
+            auto dynfunguard = std::dynamic_pointer_cast<const dk::Dynamic_Proxy_Function>(f);
             if (dynfunguard)
             {
               retval += " : " + format_guard(dynfunguard->get_parse_tree());
@@ -288,7 +288,7 @@ namespace chaiscript
 
       static std::string format_detail(const std::vector<chaiscript::Const_Proxy_Function> &t_functions,
           bool t_dot_notation,
-          const chaiscript::detail::Dispatch_Engine &t_ss)
+          const chaiscript::det::Dispatch_Engine &t_ss)
       {
         std::stringstream ss;
         if (t_functions.size() == 1)
@@ -310,7 +310,7 @@ namespace chaiscript
 
       static std::string format_parameters(const std::vector<Boxed_Value> &t_parameters,
           bool t_dot_notation,
-          const chaiscript::detail::Dispatch_Engine &t_ss)
+          const chaiscript::det::Dispatch_Engine &t_ss)
       {
         std::stringstream ss;
         ss << "(";
@@ -367,7 +367,7 @@ namespace chaiscript
       }
 
       static std::string format(const std::string &t_why, const File_Position &t_where, const std::string &t_fname,
-          const std::vector<Boxed_Value> &t_parameters, bool t_dot_notation, const chaiscript::detail::Dispatch_Engine &t_ss)
+          const std::vector<Boxed_Value> &t_parameters, bool t_dot_notation, const chaiscript::det::Dispatch_Engine &t_ss)
       {
         std::stringstream ss;
 
@@ -388,7 +388,7 @@ namespace chaiscript
       static std::string format(const std::string &t_why, 
           const std::vector<Boxed_Value> &t_parameters, 
           bool t_dot_notation,
-          const chaiscript::detail::Dispatch_Engine &t_ss)
+          const chaiscript::det::Dispatch_Engine &t_ss)
       {
         std::stringstream ss;
 
@@ -479,7 +479,7 @@ namespace chaiscript
         return oss.str();
       }
 
-      Boxed_Value eval(const chaiscript::detail::Dispatch_State &t_e) const
+      Boxed_Value eval(const chaiscript::det::Dispatch_State &t_e) const
       {
         try {
           return eval_internal(t_e);
@@ -515,7 +515,7 @@ namespace chaiscript
       {
       }
 
-      virtual Boxed_Value eval_internal(const chaiscript::detail::Dispatch_State &) const
+      virtual Boxed_Value eval_internal(const chaiscript::det::Dispatch_State &) const
       {
         throw std::runtime_error("Undispatched ast_node (internal error)");
       }
@@ -557,7 +557,7 @@ namespace chaiscript
         Scope_Push_Pop(const Scope_Push_Pop &) = delete;
         Scope_Push_Pop& operator=(const Scope_Push_Pop &) = delete;
 
-        Scope_Push_Pop(const chaiscript::detail::Dispatch_State &t_ds)
+        Scope_Push_Pop(const chaiscript::det::Dispatch_State &t_ds)
           : m_ds(t_ds)
         {
           m_ds.get()->new_scope(m_ds.get().stack_holder());
@@ -570,7 +570,7 @@ namespace chaiscript
 
 
         private:
-        std::reference_wrapper<const chaiscript::detail::Dispatch_State> m_ds;
+        std::reference_wrapper<const chaiscript::det::Dispatch_State> m_ds;
       };
 
       /// Creates a new function call and pops it on destruction
@@ -579,7 +579,7 @@ namespace chaiscript
         Function_Push_Pop(const Function_Push_Pop &) = delete;
         Function_Push_Pop& operator=(const Function_Push_Pop &) = delete;
 
-        Function_Push_Pop(const chaiscript::detail::Dispatch_State &t_ds)
+        Function_Push_Pop(const chaiscript::det::Dispatch_State &t_ds)
           : m_ds(t_ds)
         {
           m_ds.get()->new_function_call(m_ds.get().stack_holder());
@@ -602,7 +602,7 @@ namespace chaiscript
 
 
         private:
-          std::reference_wrapper<const chaiscript::detail::Dispatch_State> m_ds;
+          std::reference_wrapper<const chaiscript::det::Dispatch_State> m_ds;
       };
 
       /// Creates a new scope then pops it on destruction
@@ -611,7 +611,7 @@ namespace chaiscript
         Stack_Push_Pop(const Stack_Push_Pop &) = delete;
         Stack_Push_Pop& operator=(const Stack_Push_Pop &) = delete;
 
-        Stack_Push_Pop(const chaiscript::detail::Dispatch_State &t_ds)
+        Stack_Push_Pop(const chaiscript::det::Dispatch_State &t_ds)
           : m_ds(t_ds)
         {
           m_ds.get()->new_stack(m_ds.get().stack_holder());
@@ -624,7 +624,7 @@ namespace chaiscript
 
 
         private:
-          std::reference_wrapper<const chaiscript::detail::Dispatch_State> m_ds;
+          std::reference_wrapper<const chaiscript::det::Dispatch_State> m_ds;
       };
     }
   }

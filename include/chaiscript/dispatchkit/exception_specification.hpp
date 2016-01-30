@@ -21,7 +21,7 @@ class bad_boxed_cast;
 
 namespace chaiscript
 {
-  namespace detail
+  namespace det
   {
     /// \todo make this a variadic template
     struct Exception_Handler_Base
@@ -151,14 +151,14 @@ namespace chaiscript
   ///
   /// \sa chaiscript::exception_specification for creation of chaiscript::Exception_Handler objects
   /// \sa \ref exceptions
-  typedef std::shared_ptr<detail::Exception_Handler_Base> Exception_Handler;
+  typedef std::shared_ptr<det::Exception_Handler_Base> Exception_Handler;
 
   /// \brief creates a chaiscript::Exception_Handler which handles one type of exception unboxing
   /// \sa \ref exceptions
   template<typename T1>
   Exception_Handler exception_specification()
   {
-    return Exception_Handler(new detail::Exception_Handler_Impl1<T1>());
+    return Exception_Handler(new det::Exception_Handler_Impl1<T1>());
   }
 
   /// \brief creates a chaiscript::Exception_Handler which handles two types of exception unboxing
@@ -166,7 +166,7 @@ namespace chaiscript
   template<typename T1, typename T2>
   Exception_Handler exception_specification()
   {
-    return Exception_Handler(new detail::Exception_Handler_Impl2<T1, T2>());
+    return Exception_Handler(new det::Exception_Handler_Impl2<T1, T2>());
   }
 
   /// \brief creates a chaiscript::Exception_Handler which handles three types of exception unboxing
@@ -174,7 +174,7 @@ namespace chaiscript
   template<typename T1, typename T2, typename T3>
   Exception_Handler exception_specification()
   {
-    return Exception_Handler(new detail::Exception_Handler_Impl3<T1, T2, T3>());
+    return Exception_Handler(new det::Exception_Handler_Impl3<T1, T2, T3>());
   }
 
   /// \brief creates a chaiscript::Exception_Handler which handles four types of exception unboxing
@@ -182,7 +182,7 @@ namespace chaiscript
   template<typename T1, typename T2, typename T3, typename T4>
   Exception_Handler exception_specification()
   {
-    return Exception_Handler(new detail::Exception_Handler_Impl4<T1, T2, T3, T4>());
+    return Exception_Handler(new det::Exception_Handler_Impl4<T1, T2, T3, T4>());
   }
 
   /// \brief creates a chaiscript::Exception_Handler which handles five types of exception unboxing
@@ -190,7 +190,7 @@ namespace chaiscript
   template<typename T1, typename T2, typename T3, typename T4, typename T5>
   Exception_Handler exception_specification()
   {
-    return Exception_Handler(new detail::Exception_Handler_Impl5<T1, T2, T3, T4, T5>());
+    return Exception_Handler(new det::Exception_Handler_Impl5<T1, T2, T3, T4, T5>());
   }
 }
 

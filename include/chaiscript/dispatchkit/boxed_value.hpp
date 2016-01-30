@@ -34,7 +34,7 @@ namespace chaiscript
       struct Data
       {
         Data(const Type_Info &ti,
-            chaiscript::detail::Any to,
+            chaiscript::det::Any to,
             bool tr,
             const void *t_void_ptr,
             bool t_return_value)
@@ -69,7 +69,7 @@ namespace chaiscript
 
 
         Type_Info m_type_info;
-        chaiscript::detail::Any m_obj;
+        chaiscript::det::Any m_obj;
         void *m_data_ptr;
         const void *m_const_data_ptr;
         std::unique_ptr<std::map<std::string, std::shared_ptr<Data>>> m_attrs;
@@ -82,8 +82,8 @@ namespace chaiscript
         static std::shared_ptr<Data> get(Boxed_Value::Void_Type, bool t_return_value)
         {
           return std::make_shared<Data>(
-                detail::Get_Type_Info<void>::get(),
-                chaiscript::detail::Any(), 
+                det::Get_Type_Info<void>::get(),
+                chaiscript::det::Any(), 
                 false,
                 nullptr,
                 t_return_value)
@@ -100,8 +100,8 @@ namespace chaiscript
           static std::shared_ptr<Data> get(const std::shared_ptr<T> &obj, bool t_return_value)
           {
             return std::make_shared<Data>(
-                  detail::Get_Type_Info<T>::get(), 
-                  chaiscript::detail::Any(obj), 
+                  det::Get_Type_Info<T>::get(), 
+                  chaiscript::det::Any(obj), 
                   false,
                   obj.get(),
                   t_return_value
@@ -113,8 +113,8 @@ namespace chaiscript
           {
             auto ptr = obj.get();
             return std::make_shared<Data>(
-                  detail::Get_Type_Info<T>::get(), 
-                  chaiscript::detail::Any(std::move(obj)), 
+                  det::Get_Type_Info<T>::get(), 
+                  chaiscript::det::Any(std::move(obj)), 
                   false,
                   ptr,
                   t_return_value
@@ -139,8 +139,8 @@ namespace chaiscript
           {
             auto p = &obj.get();
             return std::make_shared<Data>(
-                  detail::Get_Type_Info<T>::get(),
-                  chaiscript::detail::Any(std::move(obj)),
+                  det::Get_Type_Info<T>::get(),
+                  chaiscript::det::Any(std::move(obj)),
                   true,
                   p,
                   t_return_value
@@ -153,8 +153,8 @@ namespace chaiscript
             auto p = std::make_shared<T>(std::move(t));
             auto ptr = p.get();
             return std::make_shared<Data>(
-                  detail::Get_Type_Info<T>::get(), 
-                  chaiscript::detail::Any(std::move(p)),
+                  det::Get_Type_Info<T>::get(), 
+                  chaiscript::det::Any(std::move(p)),
                   false,
                   ptr,
                   t_return_value
@@ -165,7 +165,7 @@ namespace chaiscript
         {
           return std::make_shared<Data>(
                 Type_Info(),
-                chaiscript::detail::Any(),
+                chaiscript::det::Any(),
                 false,
                 nullptr,
                 false
@@ -236,7 +236,7 @@ namespace chaiscript
         return (m_data->m_data_ptr == nullptr && m_data->m_const_data_ptr == nullptr);
       }
 
-      const chaiscript::detail::Any & get() const CHAISCRIPT_NOEXCEPT
+      const chaiscript::det::Any & get() const CHAISCRIPT_NOEXCEPT
       {
         return m_data->m_obj;
       }
@@ -342,7 +342,7 @@ namespace chaiscript
       return Boxed_Value(std::forward<T>(t));
     }
 
-  namespace detail {
+  namespace det {
     /// \brief Takes a value, copies it and returns a Boxed_Value object that is immutable
     /// \param[in] t Value to copy and make const
     /// \returns Immutable Boxed_Value 
@@ -413,13 +413,13 @@ namespace chaiscript
   template<typename T>
     Boxed_Value const_var(const T &t)
     {
-      return detail::const_var_impl(t);
+      return det::const_var_impl(t);
     }
 
 #ifdef CHAISCRIPT_HAS_MAGIC_STATICS
   inline Boxed_Value const_var(bool b) {
-    static auto t = detail::const_var_impl(true);
-    static auto f = detail::const_var_impl(false);
+    static auto t = det::const_var_impl(true);
+    static auto f = det::const_var_impl(false);
 
     if (b) {
       return t;

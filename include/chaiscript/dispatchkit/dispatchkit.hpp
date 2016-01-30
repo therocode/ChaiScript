@@ -37,15 +37,15 @@ class Boxed_Number;
 }  // namespace chaiscript
 
 namespace chaiscript {
-namespace dispatch {
+namespace dk {
 class Dynamic_Proxy_Function;
-class Proxy_Function_Base;
+class Proxy_Fun_B;
 struct Placeholder_Object;
-}  // namespace dispatch
+}  // namespace dk
 }  // namespace chaiscript
 
 
-/// \namespace chaiscript::dispatch
+/// \namespace chaiscript::dk
 /// \brief Classes and functions specific to the runtime dispatch side of ChaiScript. Some items may be of use to the end user.
 
 namespace chaiscript
@@ -262,21 +262,21 @@ namespace chaiscript
   /// Convenience typedef for Module objects to be added to the ChaiScript runtime
   typedef std::shared_ptr<Module> ModulePtr;
 
-  namespace detail
+  namespace det
   {
     /// A Proxy_Function implementation that is able to take
     /// a vector of Proxy_Functions and perform a dispatch on them. It is 
     /// used specifically in the case of dealing with Function object variables
-    class Dispatch_Function : public dispatch::Proxy_Function_Base
+    class Dispatch_Function : public dk::Proxy_Fun_B
     {
       public:
         Dispatch_Function(std::vector<Proxy_Function> t_funcs)
-          : Proxy_Function_Base(build_type_infos(t_funcs), calculate_arity(t_funcs)),
+          : Proxy_Fun_B(build_type_infos(t_funcs), calculate_arity(t_funcs)),
             m_funcs(std::move(t_funcs))
         {
         }
 
-        virtual bool operator==(const dispatch::Proxy_Function_Base &rhs) const CHAISCRIPT_OVERRIDE
+        virtual bool operator==(const dk::Proxy_Fun_B &rhs) const CHAISCRIPT_OVERRIDE
         {
           try {
             const auto &dispatch_fun = dynamic_cast<const Dispatch_Function &>(rhs);
@@ -328,7 +328,7 @@ namespace chaiscript
       protected:
         virtual Boxed_Value do_call(const std::vector<Boxed_Value> &params, const Type_Conversions &t_conversions) const CHAISCRIPT_OVERRIDE
         {
-          return dispatch::dispatch(m_funcs, params, t_conversions);
+          return dk::dispatch(m_funcs, params, t_conversions);
         }
 
       private:
@@ -360,7 +360,7 @@ namespace chaiscript
               {
                 if (!(type_infos[i] == param_types[i]))
                 {
-                  type_infos[i] = detail::Get_Type_Info<Boxed_Value>::get();
+                  type_infos[i] = det::Get_Type_Info<Boxed_Value>::get();
                 }
               }
 
@@ -383,7 +383,7 @@ namespace chaiscript
   }
 
 
-  namespace detail
+  namespace det
   {
     struct Stack_Holder
     {
@@ -440,7 +440,7 @@ namespace chaiscript
 
         /// \brief casts an object while applying any Dynamic_Conversion available
         template<typename Type>
-          typename detail::Cast_Helper<Type>::Result_Type boxed_cast(const Boxed_Value &bv) const
+          typename det::Cast_Helper<Type>::Result_Type boxed_cast(const Boxed_Value &bv) const
           {
             return chaiscript::boxed_cast<Type>(bv, &m_conversions);
           }
@@ -518,7 +518,7 @@ namespace chaiscript
             throw chaiscript::exception::global_non_const();
           }
 
-          chaiscript::detail::threading::unique_lock<chaiscript::detail::threading::shared_mutex> l(m_mutex);
+          chaiscript::det::threading::unique_lock<chaiscript::det::threading::shared_mutex> l(m_mutex);
 
           if (m_state.m_global_objects.find(name) != m_state.m_global_objects.end())
           {
@@ -533,7 +533,7 @@ namespace chaiscript
         {
           validate_object_name(name);
 
-          chaiscript::detail::threading::unique_lock<chaiscript::detail::threading::shared_mutex> l(m_mutex);
+          chaiscript::det::threading::unique_lock<chaiscript::det::threading::shared_mutex> l(m_mutex);
 
           const auto itr = m_state.m_global_objects.find(name);
           if (itr == m_state.m_global_objects.end())
@@ -551,7 +551,7 @@ namespace chaiscript
         {
           validate_object_name(name);
 
-          chaiscript::detail::threading::unique_lock<chaiscript::detail::threading::shared_mutex> l(m_mutex);
+          chaiscript::det::threading::unique_lock<chaiscript::det::threading::shared_mutex> l(m_mutex);
 
           if (m_state.m_global_objects.find(name) != m_state.m_global_objects.end())
           {
@@ -566,7 +566,7 @@ namespace chaiscript
         {
           validate_object_name(name);
 
-          chaiscript::detail::threading::unique_lock<chaiscript::detail::threading::shared_mutex> l(m_mutex);
+          chaiscript::det::threading::unique_lock<chaiscript::det::threading::shared_mutex> l(m_mutex);
 
           const auto itr = m_state.m_global_objects.find(name);
           if (itr != m_state.m_global_objects.end())
@@ -664,7 +664,7 @@ namespace chaiscript
           }
 
           // Is the value we are looking for a global or function?
-          chaiscript::detail::threading::shared_lock<chaiscript::detail::threading::shared_mutex> l(m_mutex);
+          chaiscript::det::threading::shared_lock<chaiscript::det::threading::shared_mutex> l(m_mutex);
 
           const auto itr = m_state.m_global_objects.find(name);
           if (itr != m_state.m_global_objects.end())
@@ -685,7 +685,7 @@ namespace chaiscript
         {
           add_global_const(const_var(ti), name + "_type");
 
-          chaiscript::detail::threading::unique_lock<chaiscript::detail::threading::shared_mutex> l(m_mutex);
+          chaiscript::det::threading::unique_lock<chaiscript::det::threading::shared_mutex> l(m_mutex);
 
           m_state.m_types.insert(std::make_pair(name, ti));
         }
@@ -693,7 +693,7 @@ namespace chaiscript
         /// Returns the type info for a named type
         Type_Info get_type(const std::string &name, bool t_throw = true) const
         {
-          chaiscript::detail::threading::shared_lock<chaiscript::detail::threading::shared_mutex> l(m_mutex);
+          chaiscript::det::threading::shared_lock<chaiscript::det::threading::shared_mutex> l(m_mutex);
 
           const auto itr = m_state.m_types.find(name);
 
@@ -714,7 +714,7 @@ namespace chaiscript
         /// match
         std::string get_type_name(const Type_Info &ti) const
         {
-          chaiscript::detail::threading::shared_lock<chaiscript::detail::threading::shared_mutex> l(m_mutex);
+          chaiscript::det::threading::shared_lock<chaiscript::det::threading::shared_mutex> l(m_mutex);
 
           for (const auto & elem : m_state.m_types)
           {
@@ -730,7 +730,7 @@ namespace chaiscript
         /// Return all registered types
         std::vector<std::pair<std::string, Type_Info> > get_types() const
         {
-          chaiscript::detail::threading::shared_lock<chaiscript::detail::threading::shared_mutex> l(m_mutex);
+          chaiscript::det::threading::shared_lock<chaiscript::det::threading::shared_mutex> l(m_mutex);
 
           return std::vector<std::pair<std::string, Type_Info> >(m_state.m_types.begin(), m_state.m_types.end());
         }
@@ -747,7 +747,7 @@ namespace chaiscript
         /// Return a function by name
         std::pair<size_t, std::shared_ptr<std::vector< Proxy_Function>>> get_function(const std::string &t_name, const size_t t_hint) const
         {
-          chaiscript::detail::threading::shared_lock<chaiscript::detail::threading::shared_mutex> l(m_mutex);
+          chaiscript::det::threading::shared_lock<chaiscript::det::threading::shared_mutex> l(m_mutex);
 
           const auto &funs = get_functions_int();
 
@@ -765,7 +765,7 @@ namespace chaiscript
         /// \throws std::range_error if it does not
         Boxed_Value get_function_object(const std::string &t_name) const
         {
-          chaiscript::detail::threading::shared_lock<chaiscript::detail::threading::shared_mutex> l(m_mutex);
+          chaiscript::det::threading::shared_lock<chaiscript::det::threading::shared_mutex> l(m_mutex);
 
           return get_function_object_int(t_name, 0).second;
         }
@@ -791,7 +791,7 @@ namespace chaiscript
         /// Return true if a function exists
         bool function_exists(const std::string &name) const
         {
-          chaiscript::detail::threading::shared_lock<chaiscript::detail::threading::shared_mutex> l(m_mutex);
+          chaiscript::det::threading::shared_lock<chaiscript::det::threading::shared_mutex> l(m_mutex);
 
           const auto &functions = get_functions_int();
           return find_keyed_value(functions, name) != functions.end();
@@ -851,7 +851,7 @@ namespace chaiscript
           } 
 
           // add the global values
-          chaiscript::detail::threading::shared_lock<chaiscript::detail::threading::shared_mutex> l(m_mutex);
+          chaiscript::det::threading::shared_lock<chaiscript::det::threading::shared_mutex> l(m_mutex);
           retval.insert(m_state.m_global_objects.begin(), m_state.m_global_objects.end());
 
           return retval;
@@ -863,7 +863,7 @@ namespace chaiscript
         ///
         std::map<std::string, Boxed_Value> get_function_objects() const
         {
-          chaiscript::detail::threading::shared_lock<chaiscript::detail::threading::shared_mutex> l(m_mutex);
+          chaiscript::det::threading::shared_lock<chaiscript::det::threading::shared_mutex> l(m_mutex);
 
           const auto &funs = get_function_objects_int();
 
@@ -881,7 +881,7 @@ namespace chaiscript
         /// Get a vector of all registered functions
         std::vector<std::pair<std::string, Proxy_Function > > get_functions() const
         {
-          chaiscript::detail::threading::shared_lock<chaiscript::detail::threading::shared_mutex> l(m_mutex);
+          chaiscript::det::threading::shared_lock<chaiscript::det::threading::shared_mutex> l(m_mutex);
 
           std::vector<std::pair<std::string, Proxy_Function> > rets;
 
@@ -900,7 +900,7 @@ namespace chaiscript
 
         void add_reserved_word(const std::string &name)
         {
-          chaiscript::detail::threading::unique_lock<chaiscript::detail::threading::shared_mutex> l(m_mutex);
+          chaiscript::det::threading::unique_lock<chaiscript::det::threading::shared_mutex> l(m_mutex);
 
           m_state.m_reserved_words.insert(name);
         }
@@ -944,8 +944,8 @@ namespace chaiscript
             [this](int l_num_params, const std::vector<Boxed_Value> &l_params, const std::vector<Proxy_Function> &l_funs, const Type_Conversions &l_conversions)->Boxed_Value
             {
               std::vector<Boxed_Value> attr_params{l_params.begin(), l_params.begin() + l_num_params};
-              Boxed_Value bv = dispatch::dispatch(l_funs, attr_params, l_conversions);
-              if (l_num_params < int(l_params.size()) || bv.get_type_info().bare_equal(user_type<dispatch::Proxy_Function_Base>())) {
+              Boxed_Value bv = dk::dispatch(l_funs, attr_params, l_conversions);
+              if (l_num_params < int(l_params.size()) || bv.get_type_info().bare_equal(user_type<dk::Proxy_Fun_B>())) {
                 struct This_Foist {
                   This_Foist(Dispatch_Engine &e, const Boxed_Value &t_bv) : m_e(e) {
                     m_e.get().new_scope();
@@ -961,7 +961,7 @@ namespace chaiscript
 
                 This_Foist fi(*this, l_params.front());
 
-                auto func = boxed_cast<std::shared_ptr<const dispatch::Proxy_Function_Base>>(bv);
+                auto func = boxed_cast<std::shared_ptr<const dk::Proxy_Fun_B>>(bv);
                 try {
                   return (*func)({l_params.begin() + l_num_params, l_params.end()}, l_conversions);
                 } catch (const chaiscript::exception::bad_boxed_cast &) {
@@ -981,7 +981,7 @@ namespace chaiscript
 
             if (!funs.second->empty()) {
               try {
-                return dispatch::dispatch(*funs.second, params, m_conversions);
+                return dk::dispatch(*funs.second, params, m_conversions);
               } catch(chaiscript::exception::dispatch_error&) {
                 except = std::current_exception();
               }
@@ -1023,9 +1023,9 @@ namespace chaiscript
                   tmp_params.insert(tmp_params.begin() + 1, var(t_name));
                   return do_attribute_call(2, tmp_params, functions, m_conversions);
                 } else {
-                  return dispatch::dispatch(functions, {params[0], var(t_name), var(std::vector<Boxed_Value>(params.begin()+1, params.end()))}, m_conversions);
+                  return dk::dispatch(functions, {params[0], var(t_name), var(std::vector<Boxed_Value>(params.begin()+1, params.end()))}, m_conversions);
                 }
-              } catch (const dispatch::option_explicit_set &e) {
+              } catch (const dk::option_explicit_set &e) {
                 throw chaiscript::exception::dispatch_error(params, std::vector<Const_Proxy_Function>(funs.second->begin(), funs.second->end()), 
                     e.what());
               }
@@ -1051,7 +1051,7 @@ namespace chaiscript
           uint_fast32_t loc = t_loc.load(std::memory_order_relaxed);
           const auto funs = get_function(t_name, loc);
           if (funs.first != loc) t_loc.store(uint_fast32_t(funs.first), std::memory_order_relaxed);
-          return dispatch::dispatch(*funs.second, params, m_conversions);
+          return dk::dispatch(*funs.second, params, m_conversions);
         }
 
 
@@ -1148,7 +1148,7 @@ namespace chaiscript
           }
 
           try {
-            const dispatch::Dynamic_Object &d = boxed_cast<const dispatch::Dynamic_Object &>(r);
+            const dk::Dynamic_Object &d = boxed_cast<const dk::Dynamic_Object &>(r);
             return d.get_type_name() == user_typename;
           } catch (const std::bad_cast &) {
           }
@@ -1163,14 +1163,14 @@ namespace chaiscript
 
         State get_state() const
         {
-          chaiscript::detail::threading::shared_lock<chaiscript::detail::threading::shared_mutex> l(m_mutex);
+          chaiscript::det::threading::shared_lock<chaiscript::det::threading::shared_mutex> l(m_mutex);
 
           return m_state;
         }
 
         void set_state(const State &t_state)
         {
-          chaiscript::detail::threading::unique_lock<chaiscript::detail::threading::shared_mutex> l(m_mutex);
+          chaiscript::det::threading::unique_lock<chaiscript::det::threading::shared_mutex> l(m_mutex);
 
           m_state = t_state;
         }
@@ -1300,8 +1300,8 @@ namespace chaiscript
         static bool function_less_than(const Proxy_Function &lhs, const Proxy_Function &rhs)
         {
 
-          auto dynamic_lhs(std::dynamic_pointer_cast<const dispatch::Dynamic_Proxy_Function>(lhs));
-          auto dynamic_rhs(std::dynamic_pointer_cast<const dispatch::Dynamic_Proxy_Function>(rhs));
+          auto dynamic_lhs(std::dynamic_pointer_cast<const dk::Dynamic_Proxy_Function>(lhs));
+          auto dynamic_rhs(std::dynamic_pointer_cast<const dk::Dynamic_Proxy_Function>(rhs));
 
           if (dynamic_lhs && dynamic_rhs)
           {
@@ -1398,7 +1398,7 @@ namespace chaiscript
             throw chaiscript::exception::illegal_name_error(name);
           }
 
-          chaiscript::detail::threading::shared_lock<chaiscript::detail::threading::shared_mutex> l(m_mutex);
+          chaiscript::det::threading::shared_lock<chaiscript::det::threading::shared_mutex> l(m_mutex);
 
           if (m_state.m_reserved_words.find(name) != m_state.m_reserved_words.end())
           {
@@ -1453,7 +1453,7 @@ namespace chaiscript
         /// \throws exception::name_conflict_error if there's a function matching the given one being added
         void add_function(const Proxy_Function &t_f, const std::string &t_name)
         {
-          chaiscript::detail::threading::unique_lock<chaiscript::detail::threading::shared_mutex> l(m_mutex);
+          chaiscript::det::threading::unique_lock<chaiscript::det::threading::shared_mutex> l(m_mutex);
 
           auto &funcs = get_functions_int();
 
@@ -1494,11 +1494,11 @@ namespace chaiscript
           add_keyed_value(get_function_objects_int(), t_name, std::move(new_func));
         }
 
-        mutable chaiscript::detail::threading::shared_mutex m_mutex;
+        mutable chaiscript::det::threading::shared_mutex m_mutex;
 
 
         Type_Conversions m_conversions;
-        chaiscript::detail::threading::Thread_Storage<Stack_Holder> m_stack_holder;
+        chaiscript::det::threading::Thread_Storage<Stack_Holder> m_stack_holder;
 
         mutable std::atomic_uint_fast32_t m_method_missing_loc;
 

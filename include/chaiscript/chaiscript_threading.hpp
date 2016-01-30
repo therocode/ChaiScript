@@ -31,7 +31,7 @@
 
 namespace chaiscript
 {
-  namespace detail
+  namespace det
   {
     /// If threading is enabled, then this namespace contains std thread classes.
     /// If threading is not enabled, then stubbed in wrappers that do nothing are provided.

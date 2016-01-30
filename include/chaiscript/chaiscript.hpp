@@ -814,7 +814,7 @@
 /// @namespace chaiscript
 /// @brief Namespace chaiscript contains every API call that the average user will be concerned with.
 
-/// @namespace chaiscript::detail
+/// @namespace chaiscript::det
 /// @brief Classes and functions reserved for internal use. Items in this namespace are not supported.
 
 #include "chaiscript_defines.hpp"

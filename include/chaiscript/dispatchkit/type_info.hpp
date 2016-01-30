@@ -15,7 +15,7 @@
 namespace chaiscript
 {
 
-  namespace detail
+  namespace det
   {
     template<typename T>
       struct Bare_Type
@@ -127,7 +127,7 @@ namespace chaiscript
       static const int is_undef_flag = 5;
   };
 
-  namespace detail
+  namespace det
   {
     /// Helper used to create a Type_Info object
     template<typename T>
@@ -221,7 +221,7 @@ namespace chaiscript
   template<typename T>
    Type_Info user_type(const T &/*t*/)
   {
-    return detail::Get_Type_Info<T>::get();
+    return det::Get_Type_Info<T>::get();
   }
 
 
@@ -236,7 +236,7 @@ namespace chaiscript
   template<typename T>
    Type_Info user_type()
   {
-    return detail::Get_Type_Info<T>::get();
+    return det::Get_Type_Info<T>::get();
   }
 
 }

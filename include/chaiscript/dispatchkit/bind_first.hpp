@@ -11,7 +11,7 @@
 
 namespace chaiscript
 {
-  namespace detail
+  namespace det
   {
 
     template<typename T>

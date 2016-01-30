@@ -21,9 +21,9 @@
 
 namespace chaiscript
 {
-  namespace dispatch
+  namespace dk
   {
-    namespace detail
+    namespace det
     {
       /// Internal helper class for handling the return
       /// value of a build_function_caller
@@ -33,7 +33,7 @@ namespace chaiscript
           static Ret call(const std::vector<Const_Proxy_Function> &t_funcs, 
               const std::vector<Boxed_Value> &params, const Type_Conversions *t_conversions)
           {
-            return boxed_cast<Ret>(dispatch::dispatch(t_funcs, params, t_conversions?*t_conversions:Type_Conversions()), t_conversions);
+            return boxed_cast<Ret>(dk::dispatch(t_funcs, params, t_conversions?*t_conversions:Type_Conversions()), t_conversions);
           }
         };
 
@@ -46,7 +46,7 @@ namespace chaiscript
           static Ret call(const std::vector<Const_Proxy_Function> &t_funcs, 
               const std::vector<Boxed_Value> &params, const Type_Conversions *t_conversions)
           {
-            return Boxed_Number(dispatch::dispatch(t_funcs, params, t_conversions?*t_conversions:Type_Conversions())).get_as<Ret>();
+            return Boxed_Number(dk::dispatch(t_funcs, params, t_conversions?*t_conversions:Type_Conversions())).get_as<Ret>();
           }
         };
 
@@ -60,7 +60,7 @@ namespace chaiscript
           static void call(const std::vector<Const_Proxy_Function> &t_funcs, 
               const std::vector<Boxed_Value> &params, const Type_Conversions *t_conversions)
           {
-            dispatch::dispatch(t_funcs, params, t_conversions?*t_conversions:Type_Conversions());
+            dk::dispatch(t_funcs, params, t_conversions?*t_conversions:Type_Conversions());
           }
         };
 

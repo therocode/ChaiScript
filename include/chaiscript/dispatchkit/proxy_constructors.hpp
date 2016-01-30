@@ -12,18 +12,18 @@
 
 namespace chaiscript
 {
-  namespace dispatch
+  namespace dk
   {
-    namespace detail
+    namespace det
     {
 
       template<typename Class, typename ... Params  >
         Proxy_Function build_constructor_(Class (*)(Params...))
         {
-          auto call = dispatch::detail::Constructor<Class, Params...>();
+          auto call = dk::det::Constructor<Class, Params...>();
 
           return Proxy_Function(
-            chaiscript::make_shared<dispatch::Proxy_Function_Base, dispatch::Proxy_Function_Callable_Impl<std::shared_ptr<Class> (Params...), decltype(call)>>(call));
+            chaiscript::make_shared<dk::Proxy_Fun_B, dk::Proxy_Fun_Callable_Impl<std::shared_ptr<Class> (Params...), decltype(call)>>(call));
         }
     }
   }
@@ -44,7 +44,7 @@ namespace chaiscript
     Proxy_Function constructor()
     {
       T *f = nullptr;
-      return (dispatch::detail::build_constructor_(f));
+      return (dk::det::build_constructor_(f));
     }
 
 }

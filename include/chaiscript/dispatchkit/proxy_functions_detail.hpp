@@ -50,9 +50,9 @@ namespace chaiscript
     };
   }
 
-  namespace dispatch
+  namespace dk
   {
-    namespace detail
+    namespace det
     {
       /**
        * Used by Proxy_Function_Impl to return a list of all param types
@@ -149,7 +149,7 @@ namespace chaiscript
        * the bad_boxed_cast is passed up to the caller.
        */
       template<typename Callable, typename Ret, typename ... Params>
-        Ret call_func(const chaiscript::dispatch::detail::Function_Signature<Ret (Params...)> &, const Callable &f,
+        Ret call_func(const chaiscript::dk::det::Function_Signature<Ret (Params...)> &, const Callable &f,
             const std::vector<Boxed_Value> &params, const Type_Conversions &t_conversions)
         {
           if (params.size() == sizeof...(Params))
@@ -212,7 +212,7 @@ namespace chaiscript
 
 
       template<typename Callable, typename Ret, typename ... Params, size_t ... I>
-        Ret call_func(const chaiscript::dispatch::detail::Function_Signature<Ret (Params...)> &, Indexes<I...>, const Callable &f,
+        Ret call_func(const chaiscript::dk::det::Function_Signature<Ret (Params...)> &, Indexes<I...>, const Callable &f,
             const std::vector<Boxed_Value> &params, const Type_Conversions &t_conversions)
         {
           (void)params; (void)t_conversions;
@@ -227,7 +227,7 @@ namespace chaiscript
        * the bad_boxed_cast is passed up to the caller.
        */
       template<typename Callable, typename Ret, typename ... Params>
-        Ret call_func(const chaiscript::dispatch::detail::Function_Signature<Ret (Params...)> &sig, const Callable &f,
+        Ret call_func(const chaiscript::dk::det::Function_Signature<Ret (Params...)> &sig, const Callable &f,
             const std::vector<Boxed_Value> &params, const Type_Conversions &t_conversions)
         {
           typedef typename Make_Indexes<sizeof...(Params)>::indexes indexes;
@@ -244,9 +244,9 @@ namespace chaiscript
 
 namespace chaiscript
 {
-  namespace dispatch
+  namespace dk
   {
-    namespace detail
+    namespace det
     {
     template<typename Ret>
       struct Do_Call
@@ -254,7 +254,7 @@ namespace chaiscript
         template<typename Signature, typename Callable>
           static Boxed_Value go(const Callable &fun, const std::vector<Boxed_Value> &params, const Type_Conversions &t_conversions)
           {
-            return Handle_Return<Ret>::handle(call_func(Function_Signature<Signature>(), fun, params, t_conversions));
+            return Handle_Ret<Ret>::handle(call_func(Function_Signature<Signature>(), fun, params, t_conversions));
           }
       };
 
@@ -265,7 +265,7 @@ namespace chaiscript
           static Boxed_Value go(const Callable &fun, const std::vector<Boxed_Value> &params, const Type_Conversions &t_conversions)
           {
             call_func(Function_Signature<Signature>(), fun, params, t_conversions);
-            return Handle_Return<void>::handle();
+            return Handle_Ret<void>::handle();
           }
       };
     }

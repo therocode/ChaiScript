@@ -150,7 +150,7 @@ namespace chaiscript
         } else if (inp_ == typeid(char32_t)) {
           return get_common_type(sizeof(char32_t), std::is_signed<char32_t>::value);
         } else  {
-          throw chaiscript::detail::exception::bad_any_cast();
+          throw chaiscript::det::exception::bad_any_cast();
         }
       }
 
@@ -172,7 +172,7 @@ namespace chaiscript
           case Operators::not_equal:
             return const_var(t != u);
           default:
-            throw chaiscript::detail::exception::bad_any_cast();
+            throw chaiscript::det::exception::bad_any_cast();
         }
       }
 
@@ -188,7 +188,7 @@ namespace chaiscript
             --t;
             break;
           default:
-            throw chaiscript::detail::exception::bad_any_cast();
+            throw chaiscript::det::exception::bad_any_cast();
         }
 
         return t_lhs;
@@ -216,7 +216,7 @@ namespace chaiscript
             t -= u;
             break;
           default:
-            throw chaiscript::detail::exception::bad_any_cast();
+            throw chaiscript::det::exception::bad_any_cast();
         }
 
         return t_lhs;
@@ -247,7 +247,7 @@ namespace chaiscript
             t ^= u;
             break;
           default:
-            throw chaiscript::detail::exception::bad_any_cast();
+            throw chaiscript::det::exception::bad_any_cast();
         }
         return t_lhs;
       }
@@ -260,7 +260,7 @@ namespace chaiscript
           case Operators::bitwise_complement:
             return const_var(~t);
           default:
-            throw chaiscript::detail::exception::bad_any_cast();
+            throw chaiscript::det::exception::bad_any_cast();
         }
       }
 
@@ -283,7 +283,7 @@ namespace chaiscript
           case Operators::bitwise_xor:
             return const_var(t ^ u);
           default:
-            throw chaiscript::detail::exception::bad_any_cast();
+            throw chaiscript::det::exception::bad_any_cast();
         }
       }
 
@@ -297,7 +297,7 @@ namespace chaiscript
           case Operators::unary_plus:
             return const_var(+t);
           default:
-            throw chaiscript::detail::exception::bad_any_cast();
+            throw chaiscript::det::exception::bad_any_cast();
         }
       }
 
@@ -316,7 +316,7 @@ namespace chaiscript
           case Operators::difference:
             return const_var(t - u);
           default:
-            throw chaiscript::detail::exception::bad_any_cast();
+            throw chaiscript::det::exception::bad_any_cast();
         }
       }
 
@@ -337,7 +337,7 @@ namespace chaiscript
         } else if (t_oper > Operators::const_flag) {
           return const_binary_go(t_oper, get_as_aux<common_type, LHS>(t_lhs), get_as_aux<common_type, RHS>(t_rhs));
         } else {
-          throw chaiscript::detail::exception::bad_any_cast();
+          throw chaiscript::det::exception::bad_any_cast();
         }
       }
 
@@ -354,7 +354,7 @@ namespace chaiscript
         } else if (t_oper > Operators::const_flag) {
           return const_binary_go(t_oper, get_as_aux<common_type, LHS>(t_lhs), get_as_aux<common_type, RHS>(t_rhs));
         } else {
-          throw chaiscript::detail::exception::bad_any_cast();
+          throw chaiscript::det::exception::bad_any_cast();
         }
       }
 
@@ -370,7 +370,7 @@ namespace chaiscript
         } else if (t_oper > Operators::const_flag) {
           return const_unary_go(t_oper, *static_cast<const LHS *>(t_lhs.get_const_ptr()));
         } else {
-          throw chaiscript::detail::exception::bad_any_cast();
+          throw chaiscript::det::exception::bad_any_cast();
         }
       }
 
@@ -383,7 +383,7 @@ namespace chaiscript
         } else if (t_oper > Operators::const_flag) {
           return const_unary_go(t_oper, *static_cast<const LHS *>(t_lhs.get_const_ptr()));
         } else {
-          throw chaiscript::detail::exception::bad_any_cast();
+          throw chaiscript::det::exception::bad_any_cast();
         }
       }
 
@@ -415,7 +415,7 @@ namespace chaiscript
               return go<LHS, long double>(t_oper, t_lhs, t_rhs);
           }
 
-          throw chaiscript::detail::exception::bad_any_cast();
+          throw chaiscript::det::exception::bad_any_cast();
         }
 
         inline static Boxed_Value oper(Operators::Opers t_oper, const Boxed_Value &t_lhs)
@@ -445,7 +445,7 @@ namespace chaiscript
               return go<long double>(t_oper, t_lhs);
           }
 
-          throw chaiscript::detail::exception::bad_any_cast();
+          throw chaiscript::det::exception::bad_any_cast();
         }
 
 
@@ -476,7 +476,7 @@ namespace chaiscript
               return oper_rhs<long double>(t_oper, t_lhs, t_rhs);
           }
 
-          throw chaiscript::detail::exception::bad_any_cast();
+          throw chaiscript::det::exception::bad_any_cast();
         }
 
         template<typename Target, typename Source>
@@ -580,7 +580,7 @@ namespace chaiscript
         } else if (inp_.bare_equal_type_info(typeid(uint64_t))) {
           return Boxed_Number(get_as<uint64_t>());
         } else {
-          throw chaiscript::detail::exception::bad_any_cast();
+          throw chaiscript::det::exception::bad_any_cast();
         }
 
       }
@@ -612,7 +612,7 @@ namespace chaiscript
             return get_as_aux<Target, long double>(bv);
         }
 
-        throw chaiscript::detail::exception::bad_any_cast();
+        throw chaiscript::det::exception::bad_any_cast();
       }
 
       std::string to_string() const
@@ -642,7 +642,7 @@ namespace chaiscript
             return to_string_aux<long double>(bv);
         }
 
-        throw chaiscript::detail::exception::bad_any_cast();
+        throw chaiscript::det::exception::bad_any_cast();
       }
 
       bool operator==(const Boxed_Number &t_rhs) const
@@ -715,12 +715,12 @@ namespace chaiscript
         const Type_Info &inp_ = v.get_type_info();
         if (inp_ == typeid(bool))
         {
-          throw chaiscript::detail::exception::bad_any_cast();
+          throw chaiscript::det::exception::bad_any_cast();
         }
 
         if (!inp_.is_arithmetic())
         {
-          throw chaiscript::detail::exception::bad_any_cast();
+          throw chaiscript::det::exception::bad_any_cast();
         }
       }
 
@@ -1003,7 +1003,7 @@ namespace chaiscript
       Boxed_Value bv;
   };
 
-  namespace detail
+  namespace det
   {
     /// Cast_Helper for converting from Boxed_Value to Boxed_Number
     template<>

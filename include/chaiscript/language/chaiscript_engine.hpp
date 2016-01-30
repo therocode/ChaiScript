@@ -64,7 +64,7 @@ namespace chaiscript
     };
   }
 
-  namespace detail
+  namespace det
   {
 #if defined(_POSIX_VERSION) && !defined(__CYGWIN__) 
     struct Loadable_Module
@@ -255,17 +255,17 @@ namespace chaiscript
   /// \brief The main object that the ChaiScript user will use.
   class ChaiScript {
 
-    mutable chaiscript::detail::threading::shared_mutex m_mutex;
-    mutable chaiscript::detail::threading::recursive_mutex m_use_mutex;
+    mutable chaiscript::det::threading::shared_mutex m_mutex;
+    mutable chaiscript::det::threading::recursive_mutex m_use_mutex;
 
     std::set<std::string> m_used_files;
-    std::map<std::string, detail::Loadable_Module_Ptr> m_loaded_modules;
+    std::map<std::string, det::Loadable_Module_Ptr> m_loaded_modules;
     std::set<std::string> m_active_loaded_modules;
 
     std::vector<std::string> m_module_paths;
     std::vector<std::string> m_use_paths;
 
-    chaiscript::detail::Dispatch_Engine m_engine;
+    chaiscript::det::Dispatch_Engine m_engine;
 
     /// Evaluates the given string in by parsing it and running the results through the evaluator
     Boxed_Value do_eval(const std::string &t_input, const std::string &t_filename = "__EVAL__", bool /* t_internal*/  = false) 
@@ -319,7 +319,7 @@ namespace chaiscript
     }
 
     /// Returns the current evaluation m_engine
-    chaiscript::detail::Dispatch_Engine &get_eval_engine() {
+    chaiscript::det::Dispatch_Engine &get_eval_engine() {
       return m_engine;
     }
 
@@ -359,16 +359,16 @@ namespace chaiscript
       m_engine.add(fun([this](){ return m_engine.get_scripting_objects(); }), "get_objects");
 
       m_engine.add(
-          dispatch::make_dynamic_proxy_function(
+          dk::make_dynamic_proxy_function(
               [this](const std::vector<Boxed_Value> &t_params) {
                 return m_engine.call_exists(t_params);
               })
           , "call_exists");
 
-//      m_engine.add(fun<Boxed_Value (const dispatch::Proxy_Function_Base *, const std::vector<Boxed_Value> &)>(std::bind(&chaiscript::dispatch::Proxy_Function_Base::operator(), std::placeholders::_1, std::placeholders::_2, std::ref(m_engine.conversions()))), "call");
+//      m_engine.add(fun<Boxed_Value (const dk::Proxy_Fun_B *, const std::vector<Boxed_Value> &)>(std::bind(&chaiscript::dk::Proxy_Fun_B::operator(), std::placeholders::_1, std::placeholders::_2, std::ref(m_engine.conversions()))), "call");
 //
       m_engine.add(fun(
-            [=](const dispatch::Proxy_Function_Base &t_fun, const std::vector<Boxed_Value> &t_params) {
+            [=](const dk::Proxy_Fun_B &t_fun, const std::vector<Boxed_Value> &t_params) {
               return t_fun(t_params, this->m_engine.conversions());
             }), "call");
 
@@ -581,8 +581,8 @@ namespace chaiscript
         try {
           const auto appendedpath = path + t_filename;
 
-          chaiscript::detail::threading::unique_lock<chaiscript::detail::threading::recursive_mutex> l(m_use_mutex);
-          chaiscript::detail::threading::unique_lock<chaiscript::detail::threading::shared_mutex> l2(m_mutex);
+          chaiscript::det::threading::unique_lock<chaiscript::det::threading::recursive_mutex> l(m_use_mutex);
+          chaiscript::det::threading::unique_lock<chaiscript::det::threading::shared_mutex> l2(m_mutex);
 
           Boxed_Value retval;
 
@@ -640,7 +640,7 @@ namespace chaiscript
     struct State
     {
       std::set<std::string> used_files;
-      chaiscript::detail::Dispatch_Engine::State engine_state;
+      chaiscript::det::Dispatch_Engine::State engine_state;
       std::set<std::string> active_loaded_modules;
     };
 
@@ -659,8 +659,8 @@ namespace chaiscript
     /// \endcode
     State get_state() const
     {
-      chaiscript::detail::threading::lock_guard<chaiscript::detail::threading::recursive_mutex> l(m_use_mutex);
-      chaiscript::detail::threading::shared_lock<chaiscript::detail::threading::shared_mutex> l2(m_mutex);
+      chaiscript::det::threading::lock_guard<chaiscript::det::threading::recursive_mutex> l(m_use_mutex);
+      chaiscript::det::threading::shared_lock<chaiscript::det::threading::shared_mutex> l2(m_mutex);
 
       State s;
       s.used_files = m_used_files;
@@ -685,8 +685,8 @@ namespace chaiscript
     /// \endcode
     void set_state(const State &t_state)
     {
-      chaiscript::detail::threading::lock_guard<chaiscript::detail::threading::recursive_mutex> l(m_use_mutex);
-      chaiscript::detail::threading::shared_lock<chaiscript::detail::threading::shared_mutex> l2(m_mutex);
+      chaiscript::det::threading::lock_guard<chaiscript::det::threading::recursive_mutex> l(m_use_mutex);
+      chaiscript::det::threading::shared_lock<chaiscript::det::threading::shared_mutex> l2(m_mutex);
 
       m_used_files = t_state.used_files;
       m_active_loaded_modules = t_state.active_loaded_modules;
@@ -827,11 +827,11 @@ namespace chaiscript
     /// \sa ChaiScript::load_module(const std::string &t_module_name)
     void load_module(const std::string &t_module_name, const std::string &t_filename)
     {
-      chaiscript::detail::threading::lock_guard<chaiscript::detail::threading::recursive_mutex> l(m_use_mutex);
+      chaiscript::det::threading::lock_guard<chaiscript::det::threading::recursive_mutex> l(m_use_mutex);
 
       if (m_loaded_modules.count(t_module_name) == 0)
       {
-        detail::Loadable_Module_Ptr lm(new detail::Loadable_Module(t_module_name, t_filename));
+        det::Loadable_Module_Ptr lm(new det::Loadable_Module(t_module_name, t_filename));
         m_loaded_modules[t_module_name] = lm;
         m_active_loaded_modules.insert(t_module_name);
         add(lm->m_moduleptr);
@@ -890,7 +890,7 @@ namespace chaiscript
 
     /// \brief casts an object while applying any Dynamic_Conversion available
     template<typename Type>
-      typename detail::Cast_Helper<Type>::Result_Type boxed_cast(const Boxed_Value &bv) const
+      typename det::Cast_Helper<Type>::Result_Type boxed_cast(const Boxed_Value &bv) const
       {
         return m_engine.boxed_cast<Type>(bv);
       }

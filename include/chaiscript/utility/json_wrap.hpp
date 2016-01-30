@@ -110,7 +110,7 @@ namespace chaiscript
             obj = bn.get_as<long>();
           }
           return obj;
-        } catch (const chaiscript::detail::exception::bad_any_cast &) {
+        } catch (const chaiscript::det::exception::bad_any_cast &) {
           // not a number
         }
 
@@ -134,7 +134,7 @@ namespace chaiscript
 
 
         try {
-          const chaiscript::dispatch::Dynamic_Object &o = boxed_cast<const dispatch::Dynamic_Object &>(t_bv);
+          const chaiscript::dk::Dynamic_Object &o = boxed_cast<const dk::Dynamic_Object &>(t_bv);
 
           json::JSON obj;
           for (const auto &attr : o.get_attrs())

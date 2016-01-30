@@ -36,7 +36,7 @@ namespace chaiscript
   namespace parser
   {
     /// \brief Classes and functions internal to the parsing process. Not supported for the end user.
-    namespace detail 
+    namespace det 
     {
       enum Alphabet
       {   symbol_alphabet = 0
@@ -63,7 +63,7 @@ namespace chaiscript
       std::string m_singleline_comment;
       std::shared_ptr<std::string> m_filename;
       std::vector<AST_NodePtr> m_match_stack;
-      bool m_alphabet[detail::max_alphabet][detail::lengthof_alphabet];
+      bool m_alphabet[det::max_alphabet][det::lengthof_alphabet];
 
       std::vector<std::vector<std::string>> m_operator_matches;
       std::vector<AST_Node_Type::Type> m_operators;
@@ -223,59 +223,59 @@ namespace chaiscript
           std::fill(std::begin(elem), std::end(elem), false);
         }
 
-        m_alphabet[detail::symbol_alphabet][static_cast<int>('?')]=true;
-        m_alphabet[detail::symbol_alphabet][static_cast<int>('+')]=true;
-        m_alphabet[detail::symbol_alphabet][static_cast<int>('-')]=true;
-        m_alphabet[detail::symbol_alphabet][static_cast<int>('*')]=true;
-        m_alphabet[detail::symbol_alphabet][static_cast<int>('/')]=true;
-        m_alphabet[detail::symbol_alphabet][static_cast<int>('|')]=true;
-        m_alphabet[detail::symbol_alphabet][static_cast<int>('&')]=true;
-        m_alphabet[detail::symbol_alphabet][static_cast<int>('^')]=true;
-        m_alphabet[detail::symbol_alphabet][static_cast<int>('=')]=true;
-        m_alphabet[detail::symbol_alphabet][static_cast<int>('.')]=true;
-        m_alphabet[detail::symbol_alphabet][static_cast<int>('<')]=true;
-        m_alphabet[detail::symbol_alphabet][static_cast<int>('>')]=true;
+        m_alphabet[det::symbol_alphabet][static_cast<int>('?')]=true;
+        m_alphabet[det::symbol_alphabet][static_cast<int>('+')]=true;
+        m_alphabet[det::symbol_alphabet][static_cast<int>('-')]=true;
+        m_alphabet[det::symbol_alphabet][static_cast<int>('*')]=true;
+        m_alphabet[det::symbol_alphabet][static_cast<int>('/')]=true;
+        m_alphabet[det::symbol_alphabet][static_cast<int>('|')]=true;
+        m_alphabet[det::symbol_alphabet][static_cast<int>('&')]=true;
+        m_alphabet[det::symbol_alphabet][static_cast<int>('^')]=true;
+        m_alphabet[det::symbol_alphabet][static_cast<int>('=')]=true;
+        m_alphabet[det::symbol_alphabet][static_cast<int>('.')]=true;
+        m_alphabet[det::symbol_alphabet][static_cast<int>('<')]=true;
+        m_alphabet[det::symbol_alphabet][static_cast<int>('>')]=true;
 
-        for ( int c = 'a' ; c <= 'z' ; ++c ) { m_alphabet[detail::keyword_alphabet][c]=true; }
-        for ( int c = 'A' ; c <= 'Z' ; ++c ) { m_alphabet[detail::keyword_alphabet][c]=true; }
-        for ( int c = '0' ; c <= '9' ; ++c ) { m_alphabet[detail::keyword_alphabet][c]=true; }
-        m_alphabet[detail::keyword_alphabet][static_cast<int>('_')]=true;
+        for ( int c = 'a' ; c <= 'z' ; ++c ) { m_alphabet[det::keyword_alphabet][c]=true; }
+        for ( int c = 'A' ; c <= 'Z' ; ++c ) { m_alphabet[det::keyword_alphabet][c]=true; }
+        for ( int c = '0' ; c <= '9' ; ++c ) { m_alphabet[det::keyword_alphabet][c]=true; }
+        m_alphabet[det::keyword_alphabet][static_cast<int>('_')]=true;
 
-        for ( int c = '0' ; c <= '9' ; ++c ) { m_alphabet[detail::int_alphabet][c]=true; }
-        for ( int c = '0' ; c <= '9' ; ++c ) { m_alphabet[detail::float_alphabet][c]=true; }
-        m_alphabet[detail::float_alphabet][static_cast<int>('.')]=true;
+        for ( int c = '0' ; c <= '9' ; ++c ) { m_alphabet[det::int_alphabet][c]=true; }
+        for ( int c = '0' ; c <= '9' ; ++c ) { m_alphabet[det::float_alphabet][c]=true; }
+        m_alphabet[det::float_alphabet][static_cast<int>('.')]=true;
 
-        for ( int c = '0' ; c <= '9' ; ++c ) { m_alphabet[detail::hex_alphabet][c]=true; }
-        for ( int c = 'a' ; c <= 'f' ; ++c ) { m_alphabet[detail::hex_alphabet][c]=true; }
-        for ( int c = 'A' ; c <= 'F' ; ++c ) { m_alphabet[detail::hex_alphabet][c]=true; }
+        for ( int c = '0' ; c <= '9' ; ++c ) { m_alphabet[det::hex_alphabet][c]=true; }
+        for ( int c = 'a' ; c <= 'f' ; ++c ) { m_alphabet[det::hex_alphabet][c]=true; }
+        for ( int c = 'A' ; c <= 'F' ; ++c ) { m_alphabet[det::hex_alphabet][c]=true; }
 
-        m_alphabet[detail::x_alphabet][static_cast<int>('x')]=true;
-        m_alphabet[detail::x_alphabet][static_cast<int>('X')]=true;
+        m_alphabet[det::x_alphabet][static_cast<int>('x')]=true;
+        m_alphabet[det::x_alphabet][static_cast<int>('X')]=true;
 
-        for ( int c = '0' ; c <= '1' ; ++c ) { m_alphabet[detail::bin_alphabet][c]=true; }
-        m_alphabet[detail::b_alphabet][static_cast<int>('b')]=true;
-        m_alphabet[detail::b_alphabet][static_cast<int>('B')]=true;
+        for ( int c = '0' ; c <= '1' ; ++c ) { m_alphabet[det::bin_alphabet][c]=true; }
+        m_alphabet[det::b_alphabet][static_cast<int>('b')]=true;
+        m_alphabet[det::b_alphabet][static_cast<int>('B')]=true;
 
-        for ( int c = 'a' ; c <= 'z' ; ++c ) { m_alphabet[detail::id_alphabet][c]=true; }
-        for ( int c = 'A' ; c <= 'Z' ; ++c ) { m_alphabet[detail::id_alphabet][c]=true; }
-        m_alphabet[detail::id_alphabet][static_cast<int>('_')] = true;
+        for ( int c = 'a' ; c <= 'z' ; ++c ) { m_alphabet[det::id_alphabet][c]=true; }
+        for ( int c = 'A' ; c <= 'Z' ; ++c ) { m_alphabet[det::id_alphabet][c]=true; }
+        m_alphabet[det::id_alphabet][static_cast<int>('_')] = true;
 
-        m_alphabet[detail::white_alphabet][static_cast<int>(' ')]=true;
-        m_alphabet[detail::white_alphabet][static_cast<int>('\t')]=true;
+        m_alphabet[det::white_alphabet][static_cast<int>(' ')]=true;
+        m_alphabet[det::white_alphabet][static_cast<int>('\t')]=true;
 
-        m_alphabet[detail::int_suffix_alphabet][static_cast<int>('l')] = true;
-        m_alphabet[detail::int_suffix_alphabet][static_cast<int>('L')] = true;
-        m_alphabet[detail::int_suffix_alphabet][static_cast<int>('u')] = true;
-        m_alphabet[detail::int_suffix_alphabet][static_cast<int>('U')] = true;
+        m_alphabet[det::int_suffix_alphabet][static_cast<int>('l')] = true;
+        m_alphabet[det::int_suffix_alphabet][static_cast<int>('L')] = true;
+        m_alphabet[det::int_suffix_alphabet][static_cast<int>('u')] = true;
+        m_alphabet[det::int_suffix_alphabet][static_cast<int>('U')] = true;
 
-        m_alphabet[detail::float_suffix_alphabet][static_cast<int>('l')] = true;
-        m_alphabet[detail::float_suffix_alphabet][static_cast<int>('L')] = true;
-        m_alphabet[detail::float_suffix_alphabet][static_cast<int>('f')] = true;
-        m_alphabet[detail::float_suffix_alphabet][static_cast<int>('F')] = true;
+        m_alphabet[det::float_suffix_alphabet][static_cast<int>('l')] = true;
+        m_alphabet[det::float_suffix_alphabet][static_cast<int>('L')] = true;
+        m_alphabet[det::float_suffix_alphabet][static_cast<int>('f')] = true;
+        m_alphabet[det::float_suffix_alphabet][static_cast<int>('F')] = true;
       }
 
       /// test a char in an m_alphabet
-      bool char_in_alphabet(char c, detail::Alphabet a) const { return m_alphabet[a][static_cast<uint8_t>(c)]; }
+      bool char_in_alphabet(char c, det::Alphabet a) const { return m_alphabet[a][static_cast<uint8_t>(c)]; }
 
       /// Prints the parsed ast_nodes as a tree
       void debug_print(AST_NodePtr t, std::string prepend = "") const {
@@ -458,7 +458,7 @@ namespace chaiscript
         while (m_position.has_more()) {
           auto end_line = (*m_position != 0) && ((*m_position == '\n') || (*m_position == '\r' && *(m_position+1) == '\n'));
 
-          if ( char_in_alphabet(*m_position,detail::white_alphabet) || (skip_cr && end_line)) {
+          if ( char_in_alphabet(*m_position,det::white_alphabet) || (skip_cr && end_line)) {
 
             if(end_line) {
               if(*m_position == '\r') {
@@ -489,7 +489,7 @@ namespace chaiscript
             ++m_position;
           }
           auto exponent_pos = m_position;
-          while (m_position.has_more() && char_in_alphabet(*m_position,detail::int_alphabet) ) {
+          while (m_position.has_more() && char_in_alphabet(*m_position,det::int_alphabet) ) {
             ++m_position;
           }
           if (m_position == exponent_pos) {
@@ -499,7 +499,7 @@ namespace chaiscript
         }
 
         // Parse optional float suffix
-        while (m_position.has_more() && char_in_alphabet(*m_position, detail::float_suffix_alphabet))
+        while (m_position.has_more() && char_in_alphabet(*m_position, det::float_suffix_alphabet))
         {
           ++m_position;
         }
@@ -510,8 +510,8 @@ namespace chaiscript
 
       /// Reads a floating point value from input, without skipping initial whitespace
       bool Float_() {
-        if (m_position.has_more() && char_in_alphabet(*m_position,detail::float_alphabet) ) {
-          while (m_position.has_more() && char_in_alphabet(*m_position,detail::int_alphabet) ) {
+        if (m_position.has_more() && char_in_alphabet(*m_position,det::float_alphabet) ) {
+          while (m_position.has_more() && char_in_alphabet(*m_position,det::int_alphabet) ) {
             ++m_position;
           }
 
@@ -521,8 +521,8 @@ namespace chaiscript
           }
           else if (m_position.has_more() && (*m_position == '.')) {
             ++m_position;
-            if (m_position.has_more() && char_in_alphabet(*m_position,detail::int_alphabet)) {
-              while (m_position.has_more() && char_in_alphabet(*m_position,detail::int_alphabet) ) {
+            if (m_position.has_more() && char_in_alphabet(*m_position,det::int_alphabet)) {
+              while (m_position.has_more() && char_in_alphabet(*m_position,det::int_alphabet) ) {
                 ++m_position;
               }
 
@@ -541,13 +541,13 @@ namespace chaiscript
         if (m_position.has_more() && (*m_position == '0')) {
           ++m_position;
 
-          if (m_position.has_more() && char_in_alphabet(*m_position, detail::x_alphabet) ) {
+          if (m_position.has_more() && char_in_alphabet(*m_position, det::x_alphabet) ) {
             ++m_position;
-            if (m_position.has_more() && char_in_alphabet(*m_position, detail::hex_alphabet)) {
-              while (m_position.has_more() && char_in_alphabet(*m_position, detail::hex_alphabet) ) {
+            if (m_position.has_more() && char_in_alphabet(*m_position, det::hex_alphabet)) {
+              while (m_position.has_more() && char_in_alphabet(*m_position, det::hex_alphabet) ) {
                 ++m_position;
               }
-              while (m_position.has_more() && char_in_alphabet(*m_position, detail::int_suffix_alphabet))
+              while (m_position.has_more() && char_in_alphabet(*m_position, det::int_suffix_alphabet))
               {
                 ++m_position;
               }
@@ -568,7 +568,7 @@ namespace chaiscript
 
       /// Reads an integer suffix
       void IntSuffix_() {
-        while (m_position.has_more() && char_in_alphabet(*m_position, detail::int_suffix_alphabet))
+        while (m_position.has_more() && char_in_alphabet(*m_position, det::int_suffix_alphabet))
         {
           ++m_position;
         }
@@ -579,10 +579,10 @@ namespace chaiscript
         if (m_position.has_more() && (*m_position == '0')) {
           ++m_position;
 
-          if (m_position.has_more() && char_in_alphabet(*m_position, detail::b_alphabet) ) {
+          if (m_position.has_more() && char_in_alphabet(*m_position, det::b_alphabet) ) {
             ++m_position;
-            if (m_position.has_more() && char_in_alphabet(*m_position, detail::bin_alphabet) ) {
-              while (m_position.has_more() && char_in_alphabet(*m_position, detail::bin_alphabet) ) {
+            if (m_position.has_more() && char_in_alphabet(*m_position, det::bin_alphabet) ) {
+              while (m_position.has_more() && char_in_alphabet(*m_position, det::bin_alphabet) ) {
                 ++m_position;
               }
               return true;
@@ -724,7 +724,7 @@ namespace chaiscript
           return Hex_() || Float_();
         } else {
           const auto start = m_position;
-          if (m_position.has_more() && char_in_alphabet(*m_position, detail::float_alphabet) ) {
+          if (m_position.has_more() && char_in_alphabet(*m_position, det::float_alphabet) ) {
             try {
               if (Hex_()) {
                 auto match = Position::str(start, m_position);
@@ -773,8 +773,8 @@ namespace chaiscript
 
       /// Reads an identifier from input which conforms to C's identifier naming conventions, without skipping initial whitespace
       bool Id_() {
-        if (m_position.has_more() && char_in_alphabet(*m_position, detail::id_alphabet)) {
-          while (m_position.has_more() && char_in_alphabet(*m_position, detail::keyword_alphabet) ) {
+        if (m_position.has_more() && char_in_alphabet(*m_position, det::id_alphabet)) {
+          while (m_position.has_more() && char_in_alphabet(*m_position, det::keyword_alphabet) ) {
             ++m_position;
           }
 
@@ -1241,7 +1241,7 @@ namespace chaiscript
         const auto start = m_position;
         bool retval = Keyword_(t_s);
         // ignore substring matches
-        if ( retval && m_position.has_more() && char_in_alphabet(*m_position, detail::keyword_alphabet) ) {
+        if ( retval && m_position.has_more() && char_in_alphabet(*m_position, det::keyword_alphabet) ) {
           m_position = start;
           retval = false;
         }
@@ -1288,7 +1288,7 @@ namespace chaiscript
         bool retval = Symbol_(t_s);
 
         // ignore substring matches
-        if (retval && m_position.has_more() && (t_disallow_prevention == false) && char_in_alphabet(*m_position,detail::symbol_alphabet)) {
+        if (retval && m_position.has_more() && (t_disallow_prevention == false) && char_in_alphabet(*m_position,det::symbol_alphabet)) {
           if (*m_position != '=' && is_operator(Position::str(start, m_position)) && !is_operator(Position::str(start, m_position+1))) {
             // don't throw this away, it's a good match and the next is not
           } else {

@@ -40,10 +40,10 @@ namespace chaiscript
 
   typedef std::shared_ptr<AST_Node> AST_NodePtr;
 
-  namespace dispatch
+  namespace dk
   {
     template<typename FunctionType>
-      std::function<FunctionType> functor(std::shared_ptr<const Proxy_Function_Base> func, const Type_Conversions *t_conversions);
+      std::function<FunctionType> functor(std::shared_ptr<const Proxy_Fun_B> func, const Type_Conversions *t_conversions);
 
     class Param_Types
     {
@@ -142,10 +142,10 @@ namespace chaiscript
      * Dispatch_Engine only knows how to work with Proxy_Function, no other
      * function classes.
      */
-    class Proxy_Function_Base
+    class Proxy_Fun_B
     {
       public:
-        virtual ~Proxy_Function_Base() {}
+        virtual ~Proxy_Fun_B() {}
 
         Boxed_Value operator()(const std::vector<Boxed_Value> &params, const chaiscript::Type_Conversions &t_conversions) const
         {
@@ -162,7 +162,7 @@ namespace chaiscript
         /// \returns the types of all parameters. 
         const std::vector<Type_Info> &get_param_types() const { return m_types; }
 
-        virtual bool operator==(const Proxy_Function_Base &) const = 0;
+        virtual bool operator==(const Proxy_Fun_B &) const = 0;
         virtual bool call_match(const std::vector<Boxed_Value> &vals, const Type_Conversions &t_conversions) const = 0;
 
         virtual bool is_attribute_function() const { return false; }
@@ -172,9 +172,9 @@ namespace chaiscript
           return m_has_arithmetic_param;
         }
 
-        virtual std::vector<std::shared_ptr<const Proxy_Function_Base> > get_contained_functions() const
+        virtual std::vector<std::shared_ptr<const Proxy_Fun_B> > get_contained_functions() const
         {
-          return std::vector<std::shared_ptr<const Proxy_Function_Base> >();
+          return std::vector<std::shared_ptr<const Proxy_Fun_B> >();
         }
 
         //! Return true if the function is a possible match
@@ -213,7 +213,7 @@ namespace chaiscript
               || (!bv.get_type_info().is_undef()
                 && ( (ti.bare_equal(user_type<Boxed_Number>()) && bv.get_type_info().is_arithmetic())
                   || ti.bare_equal(bv.get_type_info())
-                  || bv.get_type_info().bare_equal(user_type<std::shared_ptr<const Proxy_Function_Base> >())
+                  || bv.get_type_info().bare_equal(user_type<std::shared_ptr<const Proxy_Fun_B> >())
                   || t_conversions.converts(ti, bv.get_type_info()) 
                   )
                 )
@@ -233,7 +233,7 @@ namespace chaiscript
       protected:
         virtual Boxed_Value do_call(const std::vector<Boxed_Value> &params, const Type_Conversions &t_conversions) const = 0;
 
-        Proxy_Function_Base(std::vector<Type_Info> t_types, int t_arity)
+        Proxy_Fun_B(std::vector<Type_Info> t_types, int t_arity)
           : m_types(std::move(t_types)), m_arity(t_arity), m_has_arithmetic_param(false)
         {
           for (size_t i = 1; i < m_types.size(); ++i)
@@ -270,11 +270,11 @@ namespace chaiscript
   }
 
   /// \brief Common typedef used for passing of any registered function in ChaiScript
-  typedef std::shared_ptr<dispatch::Proxy_Function_Base> Proxy_Function;
+  typedef std::shared_ptr<dk::Proxy_Fun_B> Proxy_Function;
 
   /// \brief Const version of Proxy_Function. Points to a const Proxy_Function. This is how most registered functions
   ///        are handled internally.
-  typedef std::shared_ptr<const dispatch::Proxy_Function_Base> Const_Proxy_Function;
+  typedef std::shared_ptr<const dk::Proxy_Fun_B> Const_Proxy_Function;
 
   namespace exception
   {
@@ -293,13 +293,13 @@ namespace chaiscript
     };
   }
 
-  namespace dispatch
+  namespace dk
   {
     /**
      * A Proxy_Function implementation that is not type safe, the called function
      * is expecting a vector<Boxed_Value> that it works with how it chooses.
      */
-    class Dynamic_Proxy_Function : public Proxy_Function_Base
+    class Dynamic_Proxy_Function : public Proxy_Fun_B
     {
       public:
         Dynamic_Proxy_Function(
@@ -308,7 +308,7 @@ namespace chaiscript
             Param_Types t_param_types = Param_Types(),
             std::string t_description = "",
             Proxy_Function t_guard = Proxy_Function())
-          : Proxy_Function_Base(build_param_type_list(t_param_types), t_arity),
+          : Proxy_Fun_B(build_param_type_list(t_param_types), t_arity),
             m_param_types(std::move(t_param_types)),
             m_guard(std::move(t_guard)), m_parsenode(std::move(t_parsenode)), m_description(std::move(t_description))
         {
@@ -316,7 +316,7 @@ namespace chaiscript
 
         virtual ~Dynamic_Proxy_Function() {}
 
-        virtual bool operator==(const Proxy_Function_Base &rhs) const CHAISCRIPT_OVERRIDE
+        virtual bool operator==(const Proxy_Fun_B &rhs) const CHAISCRIPT_OVERRIDE
         {
           const Dynamic_Proxy_Function *prhs = dynamic_cast<const Dynamic_Proxy_Function *>(&rhs);
 
@@ -371,12 +371,12 @@ namespace chaiscript
         static std::vector<Type_Info> build_param_type_list(const Param_Types &t_types)
         {
           // For the return type
-          std::vector<Type_Info> types{chaiscript::detail::Get_Type_Info<Boxed_Value>::get()};
+          std::vector<Type_Info> types{chaiscript::det::Get_Type_Info<Boxed_Value>::get()};
 
           for (const auto &t : t_types.types())
           {
             if (t.second.is_undef()) {
-              types.push_back(chaiscript::detail::Get_Type_Info<Boxed_Value>::get());
+              types.push_back(chaiscript::det::Get_Type_Info<Boxed_Value>::get());
             } else {
               types.push_back(t.second);
             }
@@ -437,7 +437,7 @@ namespace chaiscript
     template<typename Callable, typename ... Arg>
     Proxy_Function make_dynamic_proxy_function(Callable &&c, Arg&& ... a)
     {
-      return chaiscript::make_shared<dispatch::Proxy_Function_Base, dispatch::Dynamic_Proxy_Function_Impl<Callable>>(
+      return chaiscript::make_shared<dk::Proxy_Fun_B, dk::Dynamic_Proxy_Function_Impl<Callable>>(
           std::forward<Callable>(c), std::forward<Arg>(a)...);
     }
 
@@ -451,18 +451,18 @@ namespace chaiscript
     /// and substitutes bound parameters into the parameter list
     /// at runtime, when call() is executed.
     /// it is used for bind(function, param1, _, param2) style calls
-    class Bound_Function : public Proxy_Function_Base
+    class Bound_Function : public Proxy_Fun_B
     {
       public:
         Bound_Function(const Const_Proxy_Function &t_f, 
             const std::vector<Boxed_Value> &t_args)
-          : Proxy_Function_Base(build_param_type_info(t_f, t_args), (t_f->get_arity()<0?-1:static_cast<int>(build_param_type_info(t_f, t_args).size())-1)),
+          : Proxy_Fun_B(build_param_type_info(t_f, t_args), (t_f->get_arity()<0?-1:static_cast<int>(build_param_type_info(t_f, t_args).size())-1)),
             m_f(t_f), m_args(t_args)
         {
           assert(m_f->get_arity() < 0 || m_f->get_arity() == static_cast<int>(m_args.size()));
         }
 
-        virtual bool operator==(const Proxy_Function_Base &t_f) const CHAISCRIPT_OVERRIDE
+        virtual bool operator==(const Proxy_Fun_B &t_f) const CHAISCRIPT_OVERRIDE
         {
           return &t_f == this;
         }
@@ -490,7 +490,7 @@ namespace chaiscript
           while (!(parg == params.end() && barg == m_args.end()))
           {
             while (barg != m_args.end() 
-                && !(barg->get_type_info() == chaiscript::detail::Get_Type_Info<Placeholder_Object>::get()))
+                && !(barg->get_type_info() == chaiscript::det::Get_Type_Info<Placeholder_Object>::get()))
             {
               args.push_back(*barg);
               ++barg;
@@ -503,7 +503,7 @@ namespace chaiscript
             }
 
             if (barg != m_args.end() 
-                && barg->get_type_info() == chaiscript::detail::Get_Type_Info<Placeholder_Object>::get())
+                && barg->get_type_info() == chaiscript::det::Get_Type_Info<Placeholder_Object>::get())
             {
               ++barg;
             } 
@@ -539,7 +539,7 @@ namespace chaiscript
 
           for (size_t i = 0; i < types.size() - 1; ++i)
           {
-            if (t_args[i].get_type_info() == chaiscript::detail::Get_Type_Info<Placeholder_Object>::get())
+            if (t_args[i].get_type_info() == chaiscript::det::Get_Type_Info<Placeholder_Object>::get())
             {
               retval.push_back(types[i+1]);
             }
@@ -558,15 +558,15 @@ namespace chaiscript
         std::vector<Boxed_Value> m_args;
     };
 
-    class Proxy_Function_Impl_Base : public Proxy_Function_Base
+    class Proxy_Fun_Impl_B : public Proxy_Fun_B
     {
       public:
-        Proxy_Function_Impl_Base(const std::vector<Type_Info> &t_types)
-          : Proxy_Function_Base(t_types, static_cast<int>(t_types.size()) - 1)
+        Proxy_Fun_Impl_B(const std::vector<Type_Info> &t_types)
+          : Proxy_Fun_B(t_types, static_cast<int>(t_types.size()) - 1)
         {
         }
 
-        virtual ~Proxy_Function_Impl_Base() {}
+        virtual ~Proxy_Fun_Impl_B() {}
 
         virtual std::string annotation() const CHAISCRIPT_OVERRIDE
         {
@@ -585,33 +585,33 @@ namespace chaiscript
 
     /// For any callable object
     template<typename Func, typename Callable>
-      class Proxy_Function_Callable_Impl : public Proxy_Function_Impl_Base
+      class Proxy_Fun_Callable_Impl : public Proxy_Fun_Impl_B
     {
       public:
-        Proxy_Function_Callable_Impl(Callable f)
-          : Proxy_Function_Impl_Base(detail::build_param_type_list(static_cast<Func *>(nullptr))),
+        Proxy_Fun_Callable_Impl(Callable f)
+          : Proxy_Fun_Impl_B(det::build_param_type_list(static_cast<Func *>(nullptr))),
             m_f(std::move(f))
         {
         }
 
-        virtual ~Proxy_Function_Callable_Impl() {}
+        virtual ~Proxy_Fun_Callable_Impl() {}
 
         virtual bool compare_types_with_cast(const std::vector<Boxed_Value> &vals, const Type_Conversions &t_conversions) const CHAISCRIPT_OVERRIDE
         {
-          return detail::compare_types_cast(static_cast<Func *>(nullptr), vals, t_conversions);
+          return det::compare_types_cast(static_cast<Func *>(nullptr), vals, t_conversions);
         }
 
-        virtual bool operator==(const Proxy_Function_Base &t_func) const CHAISCRIPT_OVERRIDE
+        virtual bool operator==(const Proxy_Fun_B &t_func) const CHAISCRIPT_OVERRIDE
         {
-          return dynamic_cast<const Proxy_Function_Callable_Impl<Func, Callable> *>(&t_func) != nullptr;
+          return dynamic_cast<const Proxy_Fun_Callable_Impl<Func, Callable> *>(&t_func) != nullptr;
         }
 
 
       protected:
         virtual Boxed_Value do_call(const std::vector<Boxed_Value> &params, const Type_Conversions &t_conversions) const CHAISCRIPT_OVERRIDE
         {
-          typedef typename detail::Function_Signature<Func>::Return_Type Return_Type;
-          return detail::Do_Call<Return_Type>::template go<Func>(m_f, params, t_conversions);
+          typedef typename det::Function_Signature<Func>::Return_Type Return_Type;
+          return det::Do_Call<Return_Type>::template go<Func>(m_f, params, t_conversions);
         }
 
       private:
@@ -619,43 +619,43 @@ namespace chaiscript
     };
 
 
-    class Assignable_Proxy_Function : public Proxy_Function_Impl_Base
+    class Assignable_Proxy_Fun : public Proxy_Fun_Impl_B
     {
       public:
-        Assignable_Proxy_Function(const std::vector<Type_Info> &t_types)
-          : Proxy_Function_Impl_Base(t_types)
+        Assignable_Proxy_Fun(const std::vector<Type_Info> &t_types)
+          : Proxy_Fun_Impl_B(t_types)
         {
         }
 
-        virtual ~Assignable_Proxy_Function() {}
+        virtual ~Assignable_Proxy_Fun() {}
 
 
-        virtual void assign(const std::shared_ptr<const Proxy_Function_Base> &t_rhs)  = 0;
+        virtual void assign(const std::shared_ptr<const Proxy_Fun_B> &t_rhs)  = 0;
 
 
     };
 
     template<typename Func>
-      class Assignable_Proxy_Function_Impl : public Assignable_Proxy_Function
+      class Assignable_Proxy_Fun_Impl : public Assignable_Proxy_Fun
     {
       public:
-        Assignable_Proxy_Function_Impl(std::reference_wrapper<std::function<Func>> t_f, std::shared_ptr<std::function<Func>> t_ptr)
-          : Assignable_Proxy_Function(detail::build_param_type_list(static_cast<Func *>(nullptr))),
+        Assignable_Proxy_Fun_Impl(std::reference_wrapper<std::function<Func>> t_f, std::shared_ptr<std::function<Func>> t_ptr)
+          : Assignable_Proxy_Fun(det::build_param_type_list(static_cast<Func *>(nullptr))),
             m_f(std::move(t_f)), m_shared_ptr_holder(std::move(t_ptr))
         {
           assert(!m_shared_ptr_holder || m_shared_ptr_holder.get() == &m_f.get());
         }
 
-        virtual ~Assignable_Proxy_Function_Impl() {}
+        virtual ~Assignable_Proxy_Fun_Impl() {}
 
         virtual bool compare_types_with_cast(const std::vector<Boxed_Value> &vals, const Type_Conversions &t_conversions) const CHAISCRIPT_OVERRIDE
         {
-          return detail::compare_types_cast(static_cast<Func *>(nullptr), vals, t_conversions);
+          return det::compare_types_cast(static_cast<Func *>(nullptr), vals, t_conversions);
         }
 
-        virtual bool operator==(const Proxy_Function_Base &t_func) const CHAISCRIPT_OVERRIDE
+        virtual bool operator==(const Proxy_Fun_B &t_func) const CHAISCRIPT_OVERRIDE
         {
-          return dynamic_cast<const Assignable_Proxy_Function_Impl<Func> *>(&t_func) != nullptr;
+          return dynamic_cast<const Assignable_Proxy_Fun_Impl<Func> *>(&t_func) != nullptr;
         }
 
         std::function<Func> internal_function() const
@@ -663,14 +663,14 @@ namespace chaiscript
           return m_f.get();
         }
 
-        virtual void assign(const std::shared_ptr<const Proxy_Function_Base> &t_rhs) CHAISCRIPT_OVERRIDE {
-          m_f.get() = dispatch::functor<Func>(t_rhs, nullptr);
+        virtual void assign(const std::shared_ptr<const Proxy_Fun_B> &t_rhs) CHAISCRIPT_OVERRIDE {
+          m_f.get() = dk::functor<Func>(t_rhs, nullptr);
         }
 
       protected:
         virtual Boxed_Value do_call(const std::vector<Boxed_Value> &params, const Type_Conversions &t_conversions) const CHAISCRIPT_OVERRIDE
         {
-          return detail::Do_Call<typename std::function<Func>::result_type>::template go<Func>(m_f.get(), params, t_conversions);
+          return det::Do_Call<typename std::function<Func>::result_type>::template go<Func>(m_f.get(), params, t_conversions);
         }
 
 
@@ -680,11 +680,11 @@ namespace chaiscript
     };
     /// Attribute getter Proxy_Function implementation
     template<typename T, typename Class>
-      class Attribute_Access : public Proxy_Function_Base
+      class Attribute_Access : public Proxy_Fun_B
     {
       public:
         Attribute_Access(T Class::* t_attr)
-          : Proxy_Function_Base(param_types(), 1),
+          : Proxy_Fun_B(param_types(), 1),
             m_attr(t_attr)
         {
         }
@@ -693,7 +693,7 @@ namespace chaiscript
 
         virtual bool is_attribute_function() const CHAISCRIPT_OVERRIDE { return true; } 
 
-        virtual bool operator==(const Proxy_Function_Base &t_func) const CHAISCRIPT_OVERRIDE
+        virtual bool operator==(const Proxy_Fun_B &t_func) const CHAISCRIPT_OVERRIDE
         {
           const Attribute_Access<T, Class> * aa 
             = dynamic_cast<const Attribute_Access<T, Class> *>(&t_func);
@@ -727,10 +727,10 @@ namespace chaiscript
           if (bv.is_const())
           {
             const Class *o = boxed_cast<const Class *>(bv, &t_conversions);
-            return detail::Handle_Return<const typename std::add_lvalue_reference<T>::type>::handle(o->*m_attr);
+            return det::Handle_Ret<const typename std::add_lvalue_reference<T>::type>::handle(o->*m_attr);
           } else {
             Class *o = boxed_cast<Class *>(bv, &t_conversions);
-            return detail::Handle_Return<typename std::add_lvalue_reference<T>::type>::handle(o->*m_attr);
+            return det::Handle_Ret<typename std::add_lvalue_reference<T>::type>::handle(o->*m_attr);
           }
         }
 
@@ -776,9 +776,9 @@ namespace chaiscript
     };
   } 
 
-  namespace dispatch
+  namespace dk
   {
-    namespace detail 
+    namespace det 
     {
       template<typename FuncType>
         bool types_match_except_for_arithmetic(const FuncType &t_func, const std::vector<Boxed_Value> &plist,
@@ -793,7 +793,7 @@ namespace chaiscript
           return std::mismatch(plist.begin(), plist.end(),
                                types.begin()+1,
                                [&](const Boxed_Value &bv, const Type_Info &ti) {
-                                 return Proxy_Function_Base::compare_type_to_param(ti, bv, t_conversions)
+                                 return Proxy_Fun_B::compare_type_to_param(ti, bv, t_conversions)
                                        || (bv.get_type_info().is_arithmetic() && ti.is_arithmetic());
                                }
               ) == std::make_pair(plist.end(), types.end());
@@ -880,7 +880,7 @@ namespace chaiscript
       Boxed_Value dispatch(const Funcs &funcs,
           const std::vector<Boxed_Value> &plist, const Type_Conversions &t_conversions)
       {
-        std::vector<std::pair<size_t, const Proxy_Function_Base *>> ordered_funcs;
+        std::vector<std::pair<size_t, const Proxy_Fun_B *>> ordered_funcs;
         ordered_funcs.reserve(funcs.size());
 
         for (const auto &func : funcs)
@@ -924,7 +924,7 @@ namespace chaiscript
           }
         }
 
-        return detail::dispatch_with_conversions(ordered_funcs.cbegin(), ordered_funcs.cend(), plist, t_conversions, funcs);
+        return det::dispatch_with_conversions(ordered_funcs.cbegin(), ordered_funcs.cend(), plist, t_conversions, funcs);
       }
   }
 }

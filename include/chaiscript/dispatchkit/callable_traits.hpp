@@ -10,8 +10,8 @@
 #include <memory>
 
 namespace chaiscript {
-  namespace dispatch {
-    namespace detail {
+  namespace dk {
+    namespace det {
 
       template<typename Class, typename ... Param>
       struct Constructor

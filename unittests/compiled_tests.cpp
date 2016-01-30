@@ -55,7 +55,7 @@ TEST_CASE("Dynamic_Object attributes can be shared with C++")
 
   chai("attr bob::z; def bob::bob() { this.z = 10 }; auto x = bob()");
 
-  chaiscript::dispatch::Dynamic_Object &mydo = chai.eval<chaiscript::dispatch::Dynamic_Object &>("x");
+  chaiscript::dk::Dynamic_Object &mydo = chai.eval<chaiscript::dk::Dynamic_Object &>("x");
 
   CHECK(mydo.get_type_name() == "bob");
 

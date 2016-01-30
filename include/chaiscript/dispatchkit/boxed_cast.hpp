@@ -16,11 +16,11 @@
 
 namespace chaiscript {
 class Type_Conversions;
-namespace detail {
+namespace det {
 namespace exception {
 class bad_any_cast;
 }  // namespace exception
-}  // namespace detail
+}  // namespace det
 }  // namespace chaiscript
 
 namespace chaiscript 
@@ -69,12 +69,12 @@ namespace chaiscript
   /// assert(i == 5);
   /// \endcode
   template<typename Type>
-  typename detail::Cast_Helper<Type>::Result_Type boxed_cast(const Boxed_Value &bv, const Type_Conversions *t_conversions = nullptr)
+  typename det::Cast_Helper<Type>::Result_Type boxed_cast(const Boxed_Value &bv, const Type_Conversions *t_conversions = nullptr)
   {
     if (!t_conversions || bv.get_type_info().bare_equal(user_type<Type>()) || (t_conversions && !t_conversions->convertable_type<Type>())) {
       try {
-        return detail::Cast_Helper<Type>::cast(bv, t_conversions);
-      } catch (const chaiscript::detail::exception::bad_any_cast &) {
+        return det::Cast_Helper<Type>::cast(bv, t_conversions);
+      } catch (const chaiscript::det::exception::bad_any_cast &) {
       }
     }
 
@@ -85,13 +85,13 @@ namespace chaiscript
         // std::cout << "trying an up conversion " << typeid(Type).name() << '\n';
         // We will not catch any bad_boxed_dynamic_cast that is thrown, let the user get it
         // either way, we are not responsible if it doesn't work
-        return detail::Cast_Helper<Type>::cast(t_conversions->boxed_type_conversion<Type>(bv), t_conversions);
+        return det::Cast_Helper<Type>::cast(t_conversions->boxed_type_conversion<Type>(bv), t_conversions);
       } catch (...) {
         try {
         //  std::cout << "trying a down conversion " << typeid(Type).name() << '\n';
           // try going the other way - down the inheritance graph
-          return detail::Cast_Helper<Type>::cast(t_conversions->boxed_type_down_conversion<Type>(bv), t_conversions);
-        } catch (const chaiscript::detail::exception::bad_any_cast &) {
+          return det::Cast_Helper<Type>::cast(t_conversions->boxed_type_down_conversion<Type>(bv), t_conversions);
+        } catch (const chaiscript::det::exception::bad_any_cast &) {
           throw exception::bad_boxed_cast(bv.get_type_info(), typeid(Type));
         }
       }

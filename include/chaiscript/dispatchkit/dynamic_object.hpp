@@ -15,14 +15,14 @@
 
 namespace chaiscript {
 class Type_Conversions;
-namespace dispatch {
-class Proxy_Function_Base;
-}  // namespace dispatch
+namespace dk {
+class Proxy_Fun_B;
+}  // namespace dk
 }  // namespace chaiscript
 
 namespace chaiscript
 {
-  namespace dispatch
+  namespace dk
   {
     struct option_explicit_set : std::runtime_error {
       option_explicit_set(const std::string &t_param_name)

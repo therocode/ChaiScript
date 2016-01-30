@@ -38,38 +38,38 @@ namespace chaiscript
   template<typename T>
     Proxy_Function fun(const T &t)
     {
-      typedef typename dispatch::detail::Callable_Traits<T>::Signature Signature;
+      typedef typename dk::det::Callable_Traits<T>::Signature Signature;
 
       return Proxy_Function(
-          chaiscript::make_shared<dispatch::Proxy_Function_Base, dispatch::Proxy_Function_Callable_Impl<Signature, T>>(t));
+          chaiscript::make_shared<dk::Proxy_Fun_B, dk::Proxy_Fun_Callable_Impl<Signature, T>>(t));
     }
 
   template<typename Ret, typename ... Param>
     Proxy_Function fun(Ret (*func)(Param...))
     {
-      auto fun_call = dispatch::detail::Fun_Caller<Ret, Param...>(func);
+      auto fun_call = dk::det::Fun_Caller<Ret, Param...>(func);
 
       return Proxy_Function(
-          chaiscript::make_shared<dispatch::Proxy_Function_Base, dispatch::Proxy_Function_Callable_Impl<Ret (Param...), decltype(fun_call)>>(fun_call));
+          chaiscript::make_shared<dk::Proxy_Fun_B, dk::Proxy_Fun_Callable_Impl<Ret (Param...), decltype(fun_call)>>(fun_call));
 
     }
 
   template<typename Ret, typename Class, typename ... Param>
     Proxy_Function fun(Ret (Class::*t_func)(Param...) const)
     {
-      auto call = dispatch::detail::Const_Caller<Ret, Class, Param...>(t_func);
+      auto call = dk::det::Const_Caller<Ret, Class, Param...>(t_func);
 
       return Proxy_Function(
-          chaiscript::make_shared<dispatch::Proxy_Function_Base, dispatch::Proxy_Function_Callable_Impl<Ret (const Class &, Param...), decltype(call)>>(call));
+          chaiscript::make_shared<dk::Proxy_Fun_B, dk::Proxy_Fun_Callable_Impl<Ret (const Class &, Param...), decltype(call)>>(call));
     }
 
   template<typename Ret, typename Class, typename ... Param>
     Proxy_Function fun(Ret (Class::*t_func)(Param...))
     {
-      auto call = dispatch::detail::Caller<Ret, Class, Param...>(t_func);
+      auto call = dk::det::Caller<Ret, Class, Param...>(t_func);
 
       return Proxy_Function(
-          chaiscript::make_shared<dispatch::Proxy_Function_Base, dispatch::Proxy_Function_Callable_Impl<Ret (Class &, Param...), decltype(call)>>(call));
+          chaiscript::make_shared<dk::Proxy_Fun_B, dk::Proxy_Fun_Callable_Impl<Ret (Class &, Param...), decltype(call)>>(call));
 
     }
 
@@ -77,7 +77,7 @@ namespace chaiscript
   template<typename T, typename Class /*, typename = typename std::enable_if<std::is_member_object_pointer<T>::value>::type*/>
     Proxy_Function fun(T Class::* m /*, typename std::enable_if<std::is_member_object_pointer<T>::value>::type* = 0*/ )
     {
-      return Proxy_Function(chaiscript::make_shared<dispatch::Proxy_Function_Base, dispatch::Attribute_Access<T, Class>>(m));
+      return Proxy_Function(chaiscript::make_shared<dk::Proxy_Fun_B, dk::Attribute_Access<T, Class>>(m));
     }
 
 
@@ -104,7 +104,7 @@ namespace chaiscript
   template<typename T, typename Q>
     Proxy_Function fun(T &&t, const Q &q)
     {
-      return fun(detail::bind_first(std::forward<T>(t), q));
+      return fun(det::bind_first(std::forward<T>(t), q));
     }
 
   /// \brief Creates a new Proxy_Function object from a free function or member function and binds the first and second parameters of it
@@ -130,7 +130,7 @@ namespace chaiscript
   template<typename T, typename Q, typename R>
     Proxy_Function fun(T &&t, Q &&q, R &&r)
     {
-      return fun(detail::bind_first(detail::bind_first(std::forward<T>(t), std::forward<Q>(q)), std::forward<R>(r)));
+      return fun(det::bind_first(det::bind_first(std::forward<T>(t), std::forward<Q>(q)), std::forward<R>(r)));
     }
 
 }

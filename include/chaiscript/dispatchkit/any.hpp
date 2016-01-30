@@ -10,7 +10,7 @@
 #include <utility>
 
 namespace chaiscript {
-  namespace detail {
+  namespace det {
     namespace exception
     {
       /// \brief Thrown in the event that an Any cannot be cast to the desired type
@@ -134,7 +134,7 @@ namespace chaiscript {
             {
               return *static_cast<ToType *>(m_data->data());
             } else {
-              throw chaiscript::detail::exception::bad_any_cast();
+              throw chaiscript::det::exception::bad_any_cast();
             }
           }
 

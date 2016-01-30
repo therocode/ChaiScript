@@ -19,14 +19,14 @@
 namespace chaiscript {
 class Boxed_Value;
 class Type_Conversions;
-namespace detail {
+namespace det {
 template <typename T> struct Cast_Helper;
-}  // namespace detail
+}  // namespace det
 }  // namespace chaiscript
 
 namespace chaiscript
 {
-  namespace dispatch
+  namespace dk
   {
     /// Build a function caller that knows how to dispatch on a set of functions
     /// example:
@@ -40,7 +40,7 @@ namespace chaiscript
       {
         const bool has_arity_match = std::any_of(funcs.begin(), funcs.end(),
             [](const Const_Proxy_Function &f) {
-              return f->get_arity() == -1 || size_t(f->get_arity()) == chaiscript::dispatch::detail::Arity<FunctionType>::arity;
+              return f->get_arity() == -1 || size_t(f->get_arity()) == chaiscript::dk::det::Arity<FunctionType>::arity;
             });
 
         if (!has_arity_match) {
@@ -48,7 +48,7 @@ namespace chaiscript
         }
 
         FunctionType *p=nullptr;
-        return detail::build_function_caller_helper(p, funcs, t_conversions);
+        return det::build_function_caller_helper(p, funcs, t_conversions);
       }
 
     /// Build a function caller for a particular Proxy_Function object
@@ -79,7 +79,7 @@ namespace chaiscript
       }
   }
 
-  namespace detail{
+  namespace det{
     /// Cast helper to handle automatic casting to const std::function &
     template<typename Signature>
       struct Cast_Helper<const std::function<Signature> &>
@@ -90,7 +90,7 @@ namespace chaiscript
         {
           if (ob.get_type_info().bare_equal(user_type<Const_Proxy_Function>()))
           {
-            return dispatch::functor<Signature>(ob, t_conversions);
+            return dk::functor<Signature>(ob, t_conversions);
           } else {
             return Cast_Helper_Inner<const std::function<Signature> &>::cast(ob, t_conversions);
           }
@@ -107,7 +107,7 @@ namespace chaiscript
         {
           if (ob.get_type_info().bare_equal(user_type<Const_Proxy_Function>()))
           {
-            return dispatch::functor<Signature>(ob, t_conversions);
+            return dk::functor<Signature>(ob, t_conversions);
           } else {
             return Cast_Helper_Inner<std::function<Signature> >::cast(ob, t_conversions);
           }
@@ -124,7 +124,7 @@ namespace chaiscript
         {
           if (ob.get_type_info().bare_equal(user_type<Const_Proxy_Function>()))
           {
-            return dispatch::functor<Signature>(ob, t_conversions);
+            return dk::functor<Signature>(ob, t_conversions);
           } else {
             return Cast_Helper_Inner<const std::function<Signature> >::cast(ob, t_conversions);
           }

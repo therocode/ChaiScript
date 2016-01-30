@@ -25,28 +25,28 @@
 
 namespace chaiscript {
 class Type_Conversions;
-namespace dispatch {
-class Proxy_Function_Base;
+namespace dk {
+class Proxy_Fun_B;
 }  // namespace dispatch
 }  // namespace chaiscript
 
 namespace chaiscript
 {
-  namespace dispatch
+  namespace dk
   {
-    namespace detail
+    namespace det
     {
       /// A Proxy_Function implementation designed for calling a function
       /// that is automatically guarded based on the first param based on the
       /// param's type name
-      class Dynamic_Object_Function : public Proxy_Function_Base
+      class Dynamic_Object_Function : public Proxy_Fun_B
       {
         public:
           Dynamic_Object_Function(
               std::string t_type_name,
               const Proxy_Function &t_func,
               bool t_is_attribute = false)
-            : Proxy_Function_Base(t_func->get_param_types(), t_func->get_arity()),
+            : Proxy_Fun_B(t_func->get_param_types(), t_func->get_arity()),
               m_type_name(std::move(t_type_name)), m_func(t_func), m_doti(user_type<Dynamic_Object>()),
               m_is_attribute(t_is_attribute)
           {
@@ -59,7 +59,7 @@ namespace chaiscript
               const Proxy_Function &t_func,
               const Type_Info &t_ti,
               bool t_is_attribute = false)
-            : Proxy_Function_Base(build_param_types(t_func->get_param_types(), t_ti), t_func->get_arity()),
+            : Proxy_Fun_B(build_param_types(t_func->get_param_types(), t_ti), t_func->get_arity()),
               m_type_name(std::move(t_type_name)), m_func(t_func), m_ti(t_ti.is_undef()?nullptr:new Type_Info(t_ti)), m_doti(user_type<Dynamic_Object>()),
               m_is_attribute(t_is_attribute)
           {
@@ -72,7 +72,7 @@ namespace chaiscript
           Dynamic_Object_Function &operator=(const Dynamic_Object_Function) = delete;
           Dynamic_Object_Function(Dynamic_Object_Function &) = delete;
 
-          virtual bool operator==(const Proxy_Function_Base &f) const CHAISCRIPT_OVERRIDE
+          virtual bool operator==(const Proxy_Fun_B &f) const CHAISCRIPT_OVERRIDE
           {
             if (const auto *df = dynamic_cast<const Dynamic_Object_Function *>(&f))
             {
@@ -182,13 +182,13 @@ namespace chaiscript
        * that is automatically guarded based on the first param based on the
        * param's type name
        */
-      class Dynamic_Object_Constructor : public Proxy_Function_Base
+      class Dynamic_Object_Constructor : public Proxy_Fun_B
       {
         public:
           Dynamic_Object_Constructor(
               std::string t_type_name,
               const Proxy_Function &t_func)
-            : Proxy_Function_Base(build_type_list(t_func->get_param_types()), t_func->get_arity() - 1),
+            : Proxy_Fun_B(build_type_list(t_func->get_param_types()), t_func->get_arity() - 1),
               m_type_name(std::move(t_type_name)), m_func(t_func)
           {
             assert( (t_func->get_arity() > 0 || t_func->get_arity() < 0)
@@ -210,7 +210,7 @@ namespace chaiscript
 
           virtual ~Dynamic_Object_Constructor() {}
 
-          virtual bool operator==(const Proxy_Function_Base &f) const CHAISCRIPT_OVERRIDE
+          virtual bool operator==(const Proxy_Fun_B &f) const CHAISCRIPT_OVERRIDE
           {
             const Dynamic_Object_Constructor *dc = dynamic_cast<const Dynamic_Object_Constructor*>(&f);
             return dc && dc->m_type_name == m_type_name && (*dc->m_func) == (*m_func);

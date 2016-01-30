@@ -39,7 +39,7 @@ namespace chaiscript
   /// \brief Classes and functions useful for bootstrapping of ChaiScript and adding of new types
   namespace bootstrap
   {
-    namespace detail
+    namespace det
     {
       /// \brief Constructs a new POD value object from a Boxed_Number
       /// \param[in] v Boxed_Number to copy into the new object
@@ -140,7 +140,7 @@ namespace chaiscript
     template<typename T>
     ModulePtr construct_pod(const std::string &type, ModulePtr m = std::make_shared<Module>())
     {
-      m->add(fun(&detail::construct_pod<T>), type);
+      m->add(fun(&det::construct_pod<T>), type);
       return m;
     }
 
@@ -224,7 +224,7 @@ namespace chaiscript
     Boxed_Value ptr_assign(Boxed_Value lhs, const std::shared_ptr<Type> &rhs)
     {
       if (lhs.is_undef() 
-          || (!lhs.get_type_info().is_const() && lhs.get_type_info().bare_equal(chaiscript::detail::Get_Type_Info<Type>::get())))
+          || (!lhs.get_type_info().is_const() && lhs.get_type_info().bare_equal(chaiscript::det::Get_Type_Info<Type>::get())))
       {
         lhs.assign(Boxed_Value(rhs));
         return lhs;
@@ -315,20 +315,20 @@ namespace chaiscript
           throw exception::arity_error(static_cast<int>(params.size()), f->get_arity());
         }
 
-        return Boxed_Value(Const_Proxy_Function(std::make_shared<dispatch::Bound_Function>(std::move(f),
+        return Boxed_Value(Const_Proxy_Function(std::make_shared<dk::Bound_Function>(std::move(f),
           std::vector<Boxed_Value>(params.begin() + 1, params.end()))));
       }
 
 
       static bool has_guard(const Const_Proxy_Function &t_pf)
       {
-        auto pf = std::dynamic_pointer_cast<const dispatch::Dynamic_Proxy_Function>(t_pf);
+        auto pf = std::dynamic_pointer_cast<const dk::Dynamic_Proxy_Function>(t_pf);
         return pf && pf->get_guard();
       }
 
       static Const_Proxy_Function get_guard(const Const_Proxy_Function &t_pf)
       {
-        const auto pf = std::dynamic_pointer_cast<const dispatch::Dynamic_Proxy_Function>(t_pf);
+        const auto pf = std::dynamic_pointer_cast<const dk::Dynamic_Proxy_Function>(t_pf);
         if (pf && pf->get_guard())
         {
           return pf->get_guard();
@@ -359,7 +359,7 @@ namespace chaiscript
 
       template<typename FunctionType>
         static std::vector<Boxed_Value> do_return_boxed_value_vector(FunctionType f,
-            const dispatch::Proxy_Function_Base *b)
+            const dk::Proxy_Fun_B *b)
         {
           auto v = (b->*f)();
  
@@ -376,13 +376,13 @@ namespace chaiscript
 
       static bool has_parse_tree(const chaiscript::Const_Proxy_Function &t_pf)
       {
-        const auto pf = std::dynamic_pointer_cast<const chaiscript::dispatch::Dynamic_Proxy_Function>(t_pf);
+        const auto pf = std::dynamic_pointer_cast<const chaiscript::dk::Dynamic_Proxy_Function>(t_pf);
         return pf && pf->get_parse_tree();
       }
 
       static chaiscript::AST_NodePtr get_parse_tree(const chaiscript::Const_Proxy_Function &t_pf)
       {
-        const auto pf = std::dynamic_pointer_cast<const chaiscript::dispatch::Dynamic_Proxy_Function>(t_pf);
+        const auto pf = std::dynamic_pointer_cast<const chaiscript::dk::Dynamic_Proxy_Function>(t_pf);
         if (pf && pf->get_parse_tree())
         {
           return pf->get_parse_tree();
@@ -392,9 +392,9 @@ namespace chaiscript
       }
 
       template<typename Function>
-      static std::function<std::vector<Boxed_Value> (const dispatch::Proxy_Function_Base*)> return_boxed_value_vector(const Function &f)
+      static std::function<std::vector<Boxed_Value> (const dk::Proxy_Fun_B*)> return_boxed_value_vector(const Function &f)
       {
-        return [f](const dispatch::Proxy_Function_Base *b) {
+        return [f](const dk::Proxy_Fun_B *b) {
           return do_return_boxed_value_vector(f, b);
         };
       }
@@ -411,16 +411,16 @@ namespace chaiscript
         m->add(user_type<Boxed_Value>(), "Object");
         m->add(user_type<Boxed_Number>(), "Number");
         m->add(user_type<Proxy_Function>(), "Function");
-        m->add(user_type<dispatch::Assignable_Proxy_Function>(), "Assignable_Function");
+        m->add(user_type<dk::Assignable_Proxy_Fun>(), "Assignable_Function");
         m->add(user_type<std::exception>(), "exception");
 
-        m->add(fun(&dispatch::Proxy_Function_Base::get_arity), "get_arity");
-        m->add(fun(&dispatch::Proxy_Function_Base::annotation), "get_annotation");
-        m->add(fun(&dispatch::Proxy_Function_Base::operator==), "==");
+        m->add(fun(&dk::Proxy_Fun_B::get_arity), "get_arity");
+        m->add(fun(&dk::Proxy_Fun_B::annotation), "get_annotation");
+        m->add(fun(&dk::Proxy_Fun_B::operator==), "==");
 
 
-        m->add(fun(return_boxed_value_vector(&dispatch::Proxy_Function_Base::get_param_types)), "get_param_types");
-        m->add(fun(return_boxed_value_vector(&dispatch::Proxy_Function_Base::get_contained_functions)), "get_contained_functions");
+        m->add(fun(return_boxed_value_vector(&dk::Proxy_Fun_B::get_param_types)), "get_param_types");
+        m->add(fun(return_boxed_value_vector(&dk::Proxy_Fun_B::get_contained_functions)), "get_contained_functions");
 
 
         m->add(user_type<std::out_of_range>(), "out_of_range");
@@ -435,22 +435,22 @@ namespace chaiscript
         m->add(constructor<std::runtime_error (const std::string &)>(), "runtime_error");
         m->add(fun(std::function<std::string (const std::runtime_error &)>(&what)), "what");
 
-        m->add(user_type<dispatch::Dynamic_Object>(), "Dynamic_Object");
-        m->add(constructor<dispatch::Dynamic_Object (const std::string &)>(), "Dynamic_Object");
-        m->add(constructor<dispatch::Dynamic_Object ()>(), "Dynamic_Object");
-        m->add(fun(&dispatch::Dynamic_Object::get_type_name), "get_type_name");
-        m->add(fun(&dispatch::Dynamic_Object::get_attrs), "get_attrs");
-        m->add(fun(&dispatch::Dynamic_Object::set_explicit), "set_explicit");
-        m->add(fun(&dispatch::Dynamic_Object::is_explicit), "is_explicit");
+        m->add(user_type<dk::Dynamic_Object>(), "Dynamic_Object");
+        m->add(constructor<dk::Dynamic_Object (const std::string &)>(), "Dynamic_Object");
+        m->add(constructor<dk::Dynamic_Object ()>(), "Dynamic_Object");
+        m->add(fun(&dk::Dynamic_Object::get_type_name), "get_type_name");
+        m->add(fun(&dk::Dynamic_Object::get_attrs), "get_attrs");
+        m->add(fun(&dk::Dynamic_Object::set_explicit), "set_explicit");
+        m->add(fun(&dk::Dynamic_Object::is_explicit), "is_explicit");
 
-        m->add(fun(static_cast<Boxed_Value & (dispatch::Dynamic_Object::*)(const std::string &)>(&dispatch::Dynamic_Object::get_attr)), "get_attr");
-        m->add(fun(static_cast<const Boxed_Value & (dispatch::Dynamic_Object::*)(const std::string &) const>(&dispatch::Dynamic_Object::get_attr)), "get_attr");
+        m->add(fun(static_cast<Boxed_Value & (dk::Dynamic_Object::*)(const std::string &)>(&dk::Dynamic_Object::get_attr)), "get_attr");
+        m->add(fun(static_cast<const Boxed_Value & (dk::Dynamic_Object::*)(const std::string &) const>(&dk::Dynamic_Object::get_attr)), "get_attr");
 
-        m->add(fun(static_cast<Boxed_Value & (dispatch::Dynamic_Object::*)(const std::string &)>(&dispatch::Dynamic_Object::method_missing)), "method_missing");
-        m->add(fun(static_cast<const Boxed_Value & (dispatch::Dynamic_Object::*)(const std::string &) const>(&dispatch::Dynamic_Object::method_missing)), "method_missing");
+        m->add(fun(static_cast<Boxed_Value & (dk::Dynamic_Object::*)(const std::string &)>(&dk::Dynamic_Object::method_missing)), "method_missing");
+        m->add(fun(static_cast<const Boxed_Value & (dk::Dynamic_Object::*)(const std::string &) const>(&dk::Dynamic_Object::method_missing)), "method_missing");
 
-        m->add(fun(static_cast<Boxed_Value & (dispatch::Dynamic_Object::*)(const std::string &)>(&dispatch::Dynamic_Object::get_attr)), "[]");
-        m->add(fun(static_cast<const Boxed_Value & (dispatch::Dynamic_Object::*)(const std::string &) const>(&dispatch::Dynamic_Object::get_attr)), "[]");
+        m->add(fun(static_cast<Boxed_Value & (dk::Dynamic_Object::*)(const std::string &)>(&dk::Dynamic_Object::get_attr)), "[]");
+        m->add(fun(static_cast<const Boxed_Value & (dk::Dynamic_Object::*)(const std::string &) const>(&dk::Dynamic_Object::get_attr)), "[]");
 
         m->eval(R""(
           def Dynamic_Object::clone() { 
@@ -538,14 +538,14 @@ namespace chaiscript
         m->add(fun(&print), "print_string");
         m->add(fun(&println), "println_string");
 
-        m->add(dispatch::make_dynamic_proxy_function(&bind_function), "bind");
+        m->add(dk::make_dynamic_proxy_function(&bind_function), "bind");
 
-        m->add(fun(&shared_ptr_unconst_clone<dispatch::Proxy_Function_Base>), "clone");
-        m->add(fun(&ptr_assign<std::remove_const<dispatch::Proxy_Function_Base>::type>), "=");
-        m->add(fun(&ptr_assign<std::add_const<dispatch::Proxy_Function_Base>::type>), "=");
-        m->add(chaiscript::base_class<dispatch::Proxy_Function_Base, dispatch::Assignable_Proxy_Function>());
+        m->add(fun(&shared_ptr_unconst_clone<dk::Proxy_Fun_B>), "clone");
+        m->add(fun(&ptr_assign<std::remove_const<dk::Proxy_Fun_B>::type>), "=");
+        m->add(fun(&ptr_assign<std::add_const<dk::Proxy_Fun_B>::type>), "=");
+        m->add(chaiscript::base_class<dk::Proxy_Fun_B, dk::Assignable_Proxy_Fun>());
         m->add(fun(
-                  [](dispatch::Assignable_Proxy_Function &t_lhs, const std::shared_ptr<const dispatch::Proxy_Function_Base> &t_rhs) {
+                  [](dk::Assignable_Proxy_Fun &t_lhs, const std::shared_ptr<const dk::Proxy_Fun_B> &t_rhs) {
                     t_lhs.assign(t_rhs);
                   }
                 ), "="
